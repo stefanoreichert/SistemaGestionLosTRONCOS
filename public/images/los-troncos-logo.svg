@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120" role="img" aria-label="Los Troncos Resto Bar">
+  <rect width="360" height="120" fill="none"/>
+  <g transform="translate(16 16)">
+    <circle cx="44" cy="44" r="38" fill="none" stroke="#b8892e" stroke-width="6"/>
+    <path d="M24 66 L66 24" fill="none" stroke="#b8892e" stroke-width="6" stroke-linecap="round"/>
+    <path d="M34 30 L48 44 M40 24 L54 38 M46 20 L60 34" fill="none" stroke="#b8892e" stroke-width="4" stroke-linecap="round"/>
+    <path d="M53 60 C66 56 72 45 72 32 C62 38 55 48 53 60 Z" fill="#b8892e"/>
+  </g>
+  <text x="105" y="53" fill="#ffffff" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="700">Los Troncos</text>
+  <text x="108" y="86" fill="#d7a23b" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">RESTO BAR</text>
+</svg>
