@@ -10,8 +10,15 @@ final readonly class ListProductsUseCase
     {
     }
 
-    public function execute(): array
+    /**
+     * @return list<\App\Domain\Product\Entities\Product>
+     */
+    public function execute(?string $search = null): array
     {
-        return $this->products->all();
+        $term = trim((string) $search);
+
+        return $term === ''
+            ? $this->products->all()
+            : $this->products->search($term);
     }
 }

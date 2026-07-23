@@ -17,6 +17,20 @@ final class EloquentProductRepository implements ProductRepositoryInterface
             ->all();
     }
 
+    public function search(string $term): array
+    {
+        return ProductModel::query()
+            ->where(function ($query) use ($term): void {
+                $query
+                    ->where('name', 'like', '%'.$term.'%')
+                    ->orWhere('category', 'like', '%'.$term.'%');
+            })
+            ->orderBy('name')
+            ->get()
+            ->map(fn (ProductModel $model): Product => $this->toEntity($model))
+            ->all();
+    }
+
     public function active(): array
     {
         return ProductModel::query()

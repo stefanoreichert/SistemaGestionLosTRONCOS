@@ -12,20 +12,26 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    public function index(ListProductsUseCase $useCase): View
+    public function index(Request $request, ListProductsUseCase $useCase): View
     {
+        $search = trim((string) $request->query('search', ''));
+
         return view('products.index', [
-            'products' => $useCase->execute(),
+            'products' => $useCase->execute($search),
+            'search' => $search,
         ]);
     }
 
     public function create(): View
     {
-        return view('products.create');
+        return view('products.create', [
+            'categories' => config('products.categories'),
+        ]);
     }
 
     public function store(StoreProductRequest $request, CreateProductUseCase $useCase): RedirectResponse
@@ -43,6 +49,7 @@ class ProductController extends Controller
 
         return view('products.edit', [
             'product' => $entity,
+            'categories' => config('products.categories'),
         ]);
     }
 

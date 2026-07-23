@@ -10,7 +10,19 @@
     </div>
     <div class="field">
         <label for="category">Categoria</label>
-        <input id="category" name="category" value="{{ old('category', $isEdit ? $product->category() : '') }}" required>
+        <select id="category" name="category" required>
+            <option value="" disabled @selected(old('category', $isEdit ? $product->category() : '') === '')>
+                Seleccione una categoría
+            </option>
+            @foreach ($categories as $category)
+                <option
+                    value="{{ $category }}"
+                    @selected(old('category', $isEdit ? $product->category() : '') === $category)
+                >
+                    {{ $category }}
+                </option>
+            @endforeach
+        </select>
         @error('category') <div class="error">{{ $message }}</div> @enderror
     </div>
     <div class="field">

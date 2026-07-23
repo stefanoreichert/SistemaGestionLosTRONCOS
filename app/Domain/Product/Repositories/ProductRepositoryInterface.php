@@ -14,6 +14,11 @@ interface ProductRepositoryInterface
     /**
      * @return list<Product>
      */
+    public function search(string $term): array;
+
+    /**
+     * @return list<Product>
+     */
     public function active(): array;
 
     public function count(): int;

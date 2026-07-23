@@ -4,6 +4,22 @@
             <strong>Productos</strong>
             <a class="btn primary" href="{{ route('products.create') }}">Crear producto</a>
         </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('products.index') }}" style="display:flex;gap:10px;flex-wrap:wrap;">
+                <input
+                    type="search"
+                    name="search"
+                    value="{{ $search }}"
+                    placeholder="Buscar por nombre o categoría"
+                    aria-label="Buscar productos"
+                    style="flex:1;min-width:220px;"
+                >
+                <button class="btn primary" type="submit">Buscar</button>
+                @if ($search !== '')
+                    <a class="btn" href="{{ route('products.index') }}">Limpiar</a>
+                @endif
+            </form>
+        </div>
         <div class="card-body" style="padding:0;">
             <table>
                 <thead>
@@ -25,7 +41,11 @@
                             <td>
                                 <div class="actions">
                                     <a class="btn" href="{{ route('products.edit', $product->id()) }}">Editar</a>
-                                    <form method="POST" action="{{ route('products.destroy', $product->id()) }}">
+                                    <form
+                                        method="POST"
+                                        action="{{ route('products.destroy', $product->id()) }}"
+                                        onsubmit="return confirm('¿Está seguro de que desea eliminar este producto? Esta acción no se puede deshacer.');"
+                                    >
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn danger" type="submit">Eliminar</button>
@@ -34,7 +54,11 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="muted">No hay productos cargados.</td></tr>
+                        <tr>
+                            <td colspan="4" class="muted">
+                                {{ $search !== '' ? 'No se encontraron productos.' : 'No hay productos cargados.' }}
+                            </td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
