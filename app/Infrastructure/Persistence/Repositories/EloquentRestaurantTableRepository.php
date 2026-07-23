@@ -14,8 +14,26 @@ final class EloquentRestaurantTableRepository implements RestaurantTableReposito
 
     public function ensureRange(int $from, int $to): void
     {
+        if ($from > $to) {
+            return;
+        }
+
+        $existingNumbers = TableModel::query()
+            ->whereBetween('number', [$from, $to])
+            ->pluck('number')
+            ->mapWithKeys(fn (int $number): array => [$number => true])
+            ->all();
+
+        $missingTables = [];
+
         for ($number = $from; $number <= $to; $number++) {
-            TableModel::query()->firstOrCreate(['number' => $number]);
+            if (!isset($existingNumbers[$number])) {
+                $missingTables[] = ['number' => $number];
+            }
+        }
+
+        if ($missingTables !== []) {
+            TableModel::query()->insert($missingTables);
         }
     }
 
