@@ -5,9 +5,12 @@ namespace App\Infrastructure\Persistence\Repositories;
 use App\Domain\Product\Entities\Product;
 use App\Domain\Product\Repositories\ProductRepositoryInterface;
 use App\Infrastructure\Persistence\Eloquent\Models\ProductModel;
+use Illuminate\Support\Facades\Cache;
 
 final class EloquentProductRepository implements ProductRepositoryInterface
 {
+    private const ACTIVE_PRODUCTS_CACHE_KEY = 'products.active';
+
     public function all(): array
     {
         return ProductModel::query()
@@ -33,11 +36,14 @@ final class EloquentProductRepository implements ProductRepositoryInterface
 
     public function active(): array
     {
-        return ProductModel::query()
-            ->orderBy('name')
-            ->get()
-            ->map(fn (ProductModel $model): Product => $this->toEntity($model))
-            ->all();
+        return Cache::rememberForever(
+            self::ACTIVE_PRODUCTS_CACHE_KEY,
+            fn (): array => ProductModel::query()
+                ->orderBy('name')
+                ->get()
+                ->map(fn (ProductModel $model): Product => $this->toEntity($model))
+                ->all(),
+        );
     }
 
     public function count(): int
@@ -65,6 +71,7 @@ final class EloquentProductRepository implements ProductRepositoryInterface
         ]);
 
         $model->save();
+        Cache::forget(self::ACTIVE_PRODUCTS_CACHE_KEY);
 
         return $this->toEntity($model);
     }
@@ -72,6 +79,7 @@ final class EloquentProductRepository implements ProductRepositoryInterface
     public function delete(int $id): void
     {
         ProductModel::query()->findOrFail($id)->delete();
+        Cache::forget(self::ACTIVE_PRODUCTS_CACHE_KEY);
     }
 
     private function toEntity(ProductModel $model): Product

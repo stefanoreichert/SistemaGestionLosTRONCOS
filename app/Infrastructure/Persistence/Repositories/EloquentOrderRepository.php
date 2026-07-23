@@ -8,6 +8,7 @@ use App\Infrastructure\Persistence\Eloquent\Models\OrderItemModel;
 use App\Infrastructure\Persistence\Eloquent\Models\OrderModel;
 use App\Infrastructure\Persistence\Eloquent\Models\ProductModel;
 use App\Infrastructure\Persistence\Eloquent\Models\TableModel;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 final readonly class EloquentOrderRepository implements OrderRepositoryInterface
@@ -19,13 +20,7 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
     public function openForTableNumber(int $tableNumber): Order
     {
         return DB::transaction(function () use ($tableNumber): Order {
-            $table = $this->findTable($tableNumber);
-            $order = OrderModel::query()->firstOrCreate(
-                ['table_id' => $table->id, 'status' => 'open'],
-                ['subtotal' => 0, 'total' => 0, 'opened_at' => now(), 'closed_at' => null],
-            );
-
-            return $this->freshOrder($order);
+            return $this->freshOrder($this->openOrderModel($tableNumber));
         });
     }
 
@@ -143,24 +138,32 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
 
     public function salesTodayInCents(): int
     {
-        return $this->sumClosedTotal(now()->toDateString()) * 100;
+        [$start, $end] = $this->dayRange(now()->toDateString());
+
+        return (int) round(OrderModel::query()
+            ->where('status', 'closed')
+            ->whereBetween('closed_at', [$start, $end])
+            ->sum('total') * 100);
     }
 
     public function salesMonthInCents(): int
     {
+        [$start, $end] = $this->monthRange(now()->month, now()->year);
+
         return (int) round(OrderModel::query()
             ->where('status', 'closed')
-            ->whereYear('closed_at', now()->year)
-            ->whereMonth('closed_at', now()->month)
+            ->whereBetween('closed_at', [$start, $end])
             ->sum('total') * 100);
     }
 
     public function productsSoldToday(): int
     {
+        [$start, $end] = $this->dayRange(now()->toDateString());
+
         return (int) OrderItemModel::query()
             ->whereHas('order', fn ($query) => $query
                 ->where('status', 'closed')
-                ->whereDate('closed_at', now()->toDateString()))
+                ->whereBetween('closed_at', [$start, $end]))
             ->sum('quantity');
     }
 
@@ -200,11 +203,12 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
 
     public function monthlyReport(int $month, int $year): array
     {
+        [$start, $end] = $this->monthRange($month, $year);
+
         $orders = OrderModel::query()
             ->with(['table', 'items.product'])
             ->where('status', 'closed')
-            ->whereYear('closed_at', $year)
-            ->whereMonth('closed_at', $month)
+            ->whereBetween('closed_at', [$start, $end])
             ->get();
         $total = (int) round((float) $orders->sum('total') * 100);
         $orderIds = $orders->pluck('id')->all();
@@ -232,12 +236,12 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
 
     private function openOrderModel(int $tableNumber): OrderModel
     {
-        $this->openForTableNumber($tableNumber);
+        $table = $this->findTable($tableNumber);
 
-        return OrderModel::query()
-            ->where('status', 'open')
-            ->whereHas('table', fn ($query) => $query->where('number', $tableNumber))
-            ->firstOrFail();
+        return OrderModel::query()->firstOrCreate(
+            ['table_id' => $table->id, 'status' => 'open'],
+            ['subtotal' => 0, 'total' => 0, 'opened_at' => now(), 'closed_at' => null],
+        );
     }
 
     private function freshOrder(OrderModel $order): Order
@@ -263,20 +267,14 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         $order->save();
     }
 
-    private function sumClosedTotal(string $date): int
-    {
-        return (int) round(OrderModel::query()
-            ->where('status', 'closed')
-            ->whereDate('closed_at', $date)
-            ->sum('total'));
-    }
-
     private function closedOrdersForDate(string $date)
     {
+        [$start, $end] = $this->dayRange($date);
+
         return OrderModel::query()
             ->with(['table', 'items.product'])
             ->where('status', 'closed')
-            ->whereDate('closed_at', $date)
+            ->whereBetween('closed_at', [$start, $end])
             ->get();
     }
 
@@ -318,10 +316,12 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
 
     private function salesByHour(string $date): array
     {
+        [$start, $end] = $this->dayRange($date);
+
         return OrderModel::query()
             ->select(DB::raw('HOUR(closed_at) as hour'), DB::raw('SUM(total) as total'))
             ->where('status', 'closed')
-            ->whereDate('closed_at', $date)
+            ->whereBetween('closed_at', [$start, $end])
             ->groupBy('hour')
             ->orderBy('hour')
             ->get()
@@ -334,11 +334,12 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
 
     private function salesByDay(int $month, int $year): array
     {
+        [$start, $end] = $this->monthRange($month, $year);
+
         return OrderModel::query()
             ->select(DB::raw('DATE(closed_at) as day'), DB::raw('SUM(total) as total'))
             ->where('status', 'closed')
-            ->whereYear('closed_at', $year)
-            ->whereMonth('closed_at', $month)
+            ->whereBetween('closed_at', [$start, $end])
             ->groupBy('day')
             ->orderBy('day')
             ->get()
@@ -347,6 +348,26 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
                 'totalInCents' => (int) round(((float) $row->total) * 100),
             ])
             ->all();
+    }
+
+    /**
+     * @return array{CarbonImmutable, CarbonImmutable}
+     */
+    private function dayRange(string $date): array
+    {
+        $day = CarbonImmutable::parse($date);
+
+        return [$day->startOfDay(), $day->endOfDay()];
+    }
+
+    /**
+     * @return array{CarbonImmutable, CarbonImmutable}
+     */
+    private function monthRange(int $month, int $year): array
+    {
+        $start = CarbonImmutable::create($year, $month, 1)->startOfDay();
+
+        return [$start, $start->endOfMonth()->endOfDay()];
     }
 
     private function productRanking(array $orderIds): array

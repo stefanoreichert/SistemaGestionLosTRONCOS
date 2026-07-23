@@ -6,6 +6,7 @@ use App\Application\Tickets\DTOs\TicketFiltersDTO;
 use App\Domain\Table\Entities\Order;
 use App\Domain\Tickets\Repositories\TicketRepositoryInterface;
 use App\Infrastructure\Persistence\Eloquent\Models\OrderModel;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -48,8 +49,22 @@ final readonly class EloquentTicketRepository implements TicketRepositoryInterfa
         return OrderModel::query()
             ->with(['table', 'items.product'])
             ->where('status', 'closed')
-            ->when($filters->from !== null, fn (Builder $query) => $query->whereDate('closed_at', '>=', $filters->from))
-            ->when($filters->to !== null, fn (Builder $query) => $query->whereDate('closed_at', '<=', $filters->to))
+            ->when(
+                $filters->from !== null,
+                fn (Builder $query) => $query->where(
+                    'closed_at',
+                    '>=',
+                    CarbonImmutable::parse($filters->from)->startOfDay(),
+                ),
+            )
+            ->when(
+                $filters->to !== null,
+                fn (Builder $query) => $query->where(
+                    'closed_at',
+                    '<=',
+                    CarbonImmutable::parse($filters->to)->endOfDay(),
+                ),
+            )
             ->when($filters->tableNumber !== null, fn (Builder $query) => $query->whereHas('table', fn (Builder $tableQuery) => $tableQuery->where('number', $filters->tableNumber)))
             ->when($filters->paymentMethod !== null, fn (Builder $query) => $query->where('payment_method', $filters->paymentMethod))
             ->orderByDesc('closed_at')

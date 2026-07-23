@@ -23,9 +23,13 @@ final readonly class GetDashboardDataUseCase
      */
     public function execute(): array
     {
-        $freeTables = $this->tables->countFree();
-        $occupiedTables = $this->tables->countOccupied();
-        $totalTables = $freeTables + $occupiedTables;
+        $tables = $this->tables->allWithOpenOrder();
+        $totalTables = count($tables);
+        $occupiedTables = count(array_filter(
+            $tables,
+            static fn ($table): bool => $table->isOccupied(),
+        ));
+        $freeTables = $totalTables - $occupiedTables;
         $dailySales = $this->dailySales->dailySales(
             new DailySalesReportQuery(now()->toDateString()),
         );
@@ -38,16 +42,14 @@ final readonly class GetDashboardDataUseCase
             'occupancyPercentage' => $totalTables > 0
                 ? (int) round(($occupiedTables / $totalTables) * 100)
                 : 0,
-            'openOrders' => $this->orders->openCount(),
-            'salesTodayInCents' => $this->orders->salesTodayInCents(),
+            'openOrders' => $occupiedTables,
+            'salesTodayInCents' => $dailySales['totalInCents'],
             'salesMonthInCents' => $this->orders->salesMonthInCents(),
             'productsSoldToday' => $this->orders->productsSoldToday(),
             'dailySales' => $dailySales,
-            'closedTableStats' => $this->dailySales->closedTableStats(),
-            'tables' => $this->tables->allWithOpenOrder(),
-            'recentOrders' => $this->orders->recentClosed(8),
+            'closedTableStats' => $this->dailySales->closedTableStats($dailySales['closedOrdersCount']),
+            'tables' => $tables,
             'recentClosedTables' => $this->dailySales->recentClosedTables(8),
-            'featuredProducts' => array_slice($this->products->all(), 0, 6),
         ];
     }
 }

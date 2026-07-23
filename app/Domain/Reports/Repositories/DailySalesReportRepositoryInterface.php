@@ -19,5 +19,5 @@ interface DailySalesReportRepositoryInterface
     /**
      * @return array{today: int, weekendAverage: float, monthlyAverage: float}
      */
-    public function closedTableStats(): array;
+    public function closedTableStats(?int $todayCount = null): array;
 }

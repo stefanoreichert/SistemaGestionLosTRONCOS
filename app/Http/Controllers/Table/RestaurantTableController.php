@@ -10,7 +10,6 @@ use App\Application\Table\DTOs\UpdateProductQuantityDTO;
 use App\Application\Table\UseCases\AddProductToOrderUseCase;
 use App\Application\Table\UseCases\CloseTableOrderUseCase;
 use App\Application\Table\UseCases\EnsureRestaurantTablesUseCase;
-use App\Application\Table\UseCases\GetRestaurantTableUseCase;
 use App\Application\Table\UseCases\ListRestaurantTablesUseCase;
 use App\Application\Table\UseCases\OpenTableOrderUseCase;
 use App\Application\Table\UseCases\RemoveProductFromOrderUseCase;
@@ -22,6 +21,7 @@ use App\Http\Requests\Table\CloseTableOrderRequest;
 use App\Http\Requests\Table\RemoveProductFromOrderRequest;
 use App\Http\Requests\Table\SearchProductForTableRequest;
 use App\Http\Requests\Table\UpdateProductQuantityRequest;
+use App\Domain\Table\Entities\RestaurantTable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -42,14 +42,11 @@ class RestaurantTableController extends Controller
         int $number,
         EnsureRestaurantTablesUseCase $ensureTables,
         OpenTableOrderUseCase $openOrder,
-        GetRestaurantTableUseCase $getTable,
         ListActiveProductsUseCase $listProducts,
     ): View {
         $ensureTables->execute();
-        $openOrder->execute($number);
-        $table = $getTable->execute($number);
-
-        abort_if($table === null, 404);
+        $order = $openOrder->execute($number);
+        $table = new RestaurantTable($order->tableId(), $number, $order);
 
         $products = $listProducts->execute();
 

@@ -33,7 +33,7 @@ final class EloquentRestaurantTableRepository implements RestaurantTableReposito
         }
 
         if ($missingTables !== []) {
-            TableModel::query()->insert($missingTables);
+            TableModel::query()->insertOrIgnore($missingTables);
         }
     }
 

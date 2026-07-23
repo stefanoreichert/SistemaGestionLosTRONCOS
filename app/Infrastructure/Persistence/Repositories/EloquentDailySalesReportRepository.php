@@ -11,10 +11,11 @@ final readonly class EloquentDailySalesReportRepository implements DailySalesRep
 {
     public function dailySales(DailySalesReportQuery $query): array
     {
+        $day = CarbonImmutable::parse($query->date);
         $orders = OrderModel::query()
             ->with('table')
             ->where('status', 'closed')
-            ->whereDate('closed_at', $query->date)
+            ->whereBetween('closed_at', [$day->startOfDay(), $day->endOfDay()])
             ->orderByDesc('closed_at')
             ->get();
 
@@ -61,14 +62,14 @@ final readonly class EloquentDailySalesReportRepository implements DailySalesRep
             ->all();
     }
 
-    public function closedTableStats(): array
+    public function closedTableStats(?int $todayCount = null): array
     {
         $today = CarbonImmutable::today();
         $monthStart = $today->startOfMonth();
         $monthDays = max(1, $monthStart->diffInDays($today) + 1);
         $weekendDays = $this->operationalWeekendDays($monthStart, $today);
 
-        $todayCount = $this->closedTablesForDate($today->toDateString());
+        $todayCount ??= $this->closedTablesForDate($today);
         $monthOrders = OrderModel::query()
             ->where('status', 'closed')
             ->whereBetween('closed_at', [$monthStart->startOfDay(), $today->endOfDay()])
@@ -92,11 +93,11 @@ final readonly class EloquentDailySalesReportRepository implements DailySalesRep
             ->sum('total')) * 100);
     }
 
-    private function closedTablesForDate(string $date): int
+    private function closedTablesForDate(CarbonImmutable $date): int
     {
         return OrderModel::query()
             ->where('status', 'closed')
-            ->whereDate('closed_at', $date)
+            ->whereBetween('closed_at', [$date->startOfDay(), $date->endOfDay()])
             ->count();
     }
 
