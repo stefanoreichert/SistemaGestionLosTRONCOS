@@ -301,3 +301,21 @@ if ($order->is_delivery) {
 } elseif ($order->is_table_order) {
     // ...
 }
+Antes de crear:
+
+- Interface
+- Repository
+- Factory
+- Strategy
+- Action
+- Value Object
+- Event
+- Listener
+
+justificar:
+
+1. qué problema resuelve;
+2. por qué una clase normal no alcanza;
+3. qué principio SOLID mejora.
+
+Si no existe una justificación clara, mantener la solución más simple.
