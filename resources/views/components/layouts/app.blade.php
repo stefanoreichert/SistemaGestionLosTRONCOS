@@ -27,17 +27,17 @@
         .app { min-height: 100vh; display: flex; }
         .sidebar { width: 260px; background: var(--dark); color: #fff; padding: 20px 14px; position: sticky; top: 0; height: 100vh; transition: width .2s ease; }
         .sidebar.collapsed { width: 82px; }
-        .brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 8px 24px; }
-        .brand-mark { display: flex; align-items: center; min-width: 0; }
-        .brand-logo { width: 180px; height: auto; display: block; }
-        .brand-title { font-weight: 700; font-size: 17px; white-space: nowrap; }
+        .brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 8px 26px; }
+        .brand-name { display: flex; min-width: 0; flex-direction: column; line-height: 1; }
+        .brand-name-main { color: #fff; font-family: Georgia, 'Times New Roman', serif; font-size: 23px; font-weight: 700; letter-spacing: -.35px; white-space: nowrap; }
+        .brand-name-subtitle { color: #d7a23b; font-size: 10px; font-weight: 700; letter-spacing: 3.2px; margin-top: 8px; text-transform: uppercase; white-space: nowrap; }
         .collapse-btn { width: 34px; height: 34px; border: 1px solid #344054; border-radius: 6px; color: #fff; background: transparent; cursor: pointer; }
         .nav-section { color: #cbd5e1; font-size: 12px; margin: 18px 8px 8px; text-transform: uppercase; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; color: #f8fafc; margin-bottom: 6px; }
         .nav-link.active, .nav-link:hover { background: var(--dark-soft); }
         .nav-icon { width: 22px; text-align: center; flex: 0 0 22px; }
-        .sidebar.collapsed .brand-title, .sidebar.collapsed .nav-text, .sidebar.collapsed .nav-section { display: none; }
-        .sidebar.collapsed .brand-logo { width: 42px; max-width: 42px; }
+        .sidebar.collapsed .brand-name, .sidebar.collapsed .nav-text, .sidebar.collapsed .nav-section { display: none; }
+        .sidebar.collapsed .brand { justify-content: center; padding-inline: 0; }
         .main { flex: 1; min-width: 0; }
         .topbar { height: 72px; background: var(--panel); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; }
         .topbar h1 { font-size: 24px; margin: 0; }
@@ -119,9 +119,10 @@
     <div class="app">
         <aside class="sidebar" id="sidebar">
             <div class="brand">
-                <span class="brand-mark">
-                    <img class="brand-logo" src="{{ asset('images/los-troncos-logo.svg') }}" alt="Los Troncos Resto Bar">
-                </span>
+                <a class="brand-name" href="{{ route('dashboard') }}" aria-label="Los Troncos Resto Bar">
+                    <span class="brand-name-main">Los Troncos</span>
+                    <span class="brand-name-subtitle">Resto Bar</span>
+                </a>
                 <button class="collapse-btn" type="button" id="collapseSidebar" aria-label="Contraer menu">‹</button>
             </div>
             <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
