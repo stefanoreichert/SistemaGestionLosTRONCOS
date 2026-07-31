@@ -6,6 +6,7 @@ use App\Infrastructure\Persistence\Eloquent\Models\OrderItemModel;
 use App\Infrastructure\Persistence\Eloquent\Models\OrderModel;
 use App\Infrastructure\Persistence\Eloquent\Models\ProductModel;
 use App\Infrastructure\Persistence\Eloquent\Models\TableModel;
+use App\Infrastructure\Persistence\Eloquent\Models\User;
 use App\Infrastructure\Persistence\Repositories\EloquentOrderRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -13,6 +14,13 @@ use Tests\TestCase;
 class ProductAvailabilityTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
 
     public function test_a_product_can_be_deactivated_without_being_deleted_and_reactivated(): void
     {

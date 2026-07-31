@@ -4,12 +4,20 @@ namespace Tests\Feature;
 
 use App\Domain\Waiter\Repositories\WaiterRepositoryInterface;
 use App\Infrastructure\Persistence\Eloquent\Models\WaiterModel;
+use App\Infrastructure\Persistence\Eloquent\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class WaiterManagementTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
 
     public function test_the_list_includes_active_and_inactive_waiters(): void
     {

@@ -54,7 +54,14 @@
                     <button class="btn mobile-toggle" type="button" id="openSidebar">Menu</button>
                     <h1>{{ $title ?? 'Panel principal' }}</h1>
                 </div>
-                <div class="user">Administrador</div>
+                <div class="user flex items-center gap-3">
+                    <span>{{ auth()->user()->name }}</span>
+                    <a class="btn btn-ghost btn-sm" href="{{ route('password.edit') }}">Cambiar contraseña</a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="btn btn-outline btn-sm" type="submit">Cerrar sesión</button>
+                    </form>
+                </div>
             </header>
 
             <section class="content">

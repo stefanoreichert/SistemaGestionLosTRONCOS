@@ -7,6 +7,7 @@ use App\Infrastructure\Persistence\Eloquent\Models\OrderItemModel;
 use App\Infrastructure\Persistence\Eloquent\Models\OrderModel;
 use App\Infrastructure\Persistence\Eloquent\Models\ProductModel;
 use App\Infrastructure\Persistence\Eloquent\Models\TableModel;
+use App\Infrastructure\Persistence\Eloquent\Models\User;
 use App\Infrastructure\Persistence\Repositories\EloquentOrderRepository;
 use App\Infrastructure\Persistence\Repositories\EloquentProductRepository;
 use App\Infrastructure\Persistence\Repositories\EloquentRestaurantTableRepository;
@@ -18,6 +19,13 @@ use Tests\TestCase;
 class PerformanceOptimizationTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create());
+    }
 
     public function test_table_range_is_ensured_with_at_most_two_queries(): void
     {
