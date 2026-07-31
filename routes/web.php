@@ -5,6 +5,7 @@ use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Table\RestaurantTableController;
 use App\Http\Controllers\Ticket\TicketController;
+use App\Http\Controllers\Waiter\WaiterController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('dashboard');
@@ -13,6 +14,11 @@ Route::resource('products', ProductController::class)->except(['show', 'destroy'
 Route::patch('products/{product}/availability', [ProductController::class, 'availability'])
     ->whereNumber('product')
     ->name('products.availability');
+
+Route::resource('waiters', WaiterController::class)->except(['show', 'destroy']);
+Route::patch('waiters/{waiter}/availability', [WaiterController::class, 'availability'])
+    ->whereNumber('waiter')
+    ->name('waiters.availability');
 
 Route::get('tables', [RestaurantTableController::class, 'index'])->name('tables.index');
 Route::get('tables/{number}', [RestaurantTableController::class, 'show'])

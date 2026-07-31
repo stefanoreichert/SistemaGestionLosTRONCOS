@@ -9,12 +9,14 @@ use App\Domain\Table\Repositories\OrderRepositoryInterface;
 use App\Domain\Table\Repositories\RestaurantTableRepositoryInterface;
 use App\Application\Table\Ports\TicketPrinterInterface;
 use App\Domain\Tickets\Repositories\TicketRepositoryInterface;
+use App\Domain\Waiter\Repositories\WaiterRepositoryInterface;
 use App\Infrastructure\Persistence\Repositories\EloquentDailySalesReportRepository;
 use App\Infrastructure\Persistence\Repositories\EloquentOrderRepository;
 use App\Infrastructure\Persistence\Repositories\EloquentProductRepository;
 use App\Infrastructure\Persistence\Repositories\EloquentRestaurantTableRepository;
 use App\Infrastructure\Persistence\Repositories\EloquentSoldProductReportRepository;
 use App\Infrastructure\Persistence\Repositories\EloquentTicketRepository;
+use App\Infrastructure\Persistence\Repositories\EloquentWaiterRepository;
 use App\Infrastructure\Printing\TicketPrinterService;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,5 +33,6 @@ class RepositoryServiceProvider extends ServiceProvider
         OrderRepositoryInterface::class => EloquentOrderRepository::class,
         TicketRepositoryInterface::class => EloquentTicketRepository::class,
         TicketPrinterInterface::class => TicketPrinterService::class,
+        WaiterRepositoryInterface::class => EloquentWaiterRepository::class,
     ];
 }

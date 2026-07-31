@@ -31,6 +31,9 @@
             <a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}" href="{{ route('products.index') }}">
                 <span class="nav-icon">P</span><span class="nav-text">Productos</span>
             </a>
+            <a class="nav-link {{ request()->routeIs('waiters.*') ? 'active' : '' }}" href="{{ route('waiters.index') }}">
+                <span class="nav-icon">M</span><span class="nav-text">Mozos</span>
+            </a>
             <a class="nav-link {{ request()->routeIs('tables.*') ? 'active' : '' }}" href="{{ route('tables.index') }}">
                 <span class="nav-icon">M</span><span class="nav-text">Mesas</span>
             </a>
