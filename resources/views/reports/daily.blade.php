@@ -1,23 +1,23 @@
 <x-layouts.app title="Resumen Diario">
-    <form class="card" method="GET" action="{{ route('reports.daily') }}" style="margin-bottom:18px;">
+    <form class="card bg-base-100 border border-base-300 shadow-sm mb-[18px]" method="GET" action="{{ route('reports.daily') }}">
         <div class="card-body">
             <label for="date">Fecha</label>
-            <div style="display:flex;gap:10px;">
-                <input id="date" name="date" type="date" value="{{ $report['date'] }}">
-                <button class="btn primary" type="submit">Filtrar</button>
+            <div class="flex gap-[10px]">
+                <input class="input input-bordered" id="date" name="date" type="date" value="{{ $report['date'] }}">
+                <button class="btn btn-primary primary" type="submit">Filtrar</button>
             </div>
         </div>
     </form>
 
     <div class="grid metrics">
-        <div class="card metric"><div><div>Total vendido</div><div class="metric-value">${{ number_format($report['totalSoldInCents'] / 100, 0, ',', '.') }}</div></div></div>
-        <div class="card metric"><div><div>Pedidos</div><div class="metric-value">{{ $report['ordersCount'] }}</div></div></div>
-        <div class="card metric"><div><div>Mesas utilizadas</div><div class="metric-value">{{ $report['usedTablesCount'] }}</div></div></div>
-        <div class="card metric"><div><div>Promedio ticket</div><div class="metric-value">${{ number_format($report['averagePerTicketInCents'] / 100, 0, ',', '.') }}</div></div></div>
+        <div class="card bg-base-100 border border-base-300 shadow-sm metric"><div><div>Total vendido</div><div class="metric-value">${{ number_format($report['totalSoldInCents'] / 100, 0, ',', '.') }}</div></div></div>
+        <div class="card bg-base-100 border border-base-300 shadow-sm metric"><div><div>Pedidos</div><div class="metric-value">{{ $report['ordersCount'] }}</div></div></div>
+        <div class="card bg-base-100 border border-base-300 shadow-sm metric"><div><div>Mesas utilizadas</div><div class="metric-value">{{ $report['usedTablesCount'] }}</div></div></div>
+        <div class="card bg-base-100 border border-base-300 shadow-sm metric"><div><div>Promedio ticket</div><div class="metric-value">${{ number_format($report['averagePerTicketInCents'] / 100, 0, ',', '.') }}</div></div></div>
     </div>
 
     <div class="grid two-columns">
-        <div class="card">
+        <div class="card bg-base-100 border border-base-300 shadow-sm">
             <div class="card-header"><strong>Indicadores</strong></div>
             <div class="card-body">
                 <p><strong>Producto mas vendido:</strong> {{ $report['topProduct'] ?? 'Sin datos' }}</p>
@@ -27,7 +27,7 @@
                 <p><strong>Total general:</strong> ${{ number_format($report['grandTotalInCents'] / 100, 0, ',', '.') }}</p>
             </div>
         </div>
-        <div class="card">
+        <div class="card bg-base-100 border border-base-300 shadow-sm">
             <div class="card-header"><strong>Ventas por hora</strong></div>
             <div class="card-body">
                 @forelse ($report['salesByHour'] as $row)
@@ -39,10 +39,10 @@
         </div>
     </div>
 
-    <div class="card" style="margin-top:18px;">
+    <div class="card bg-base-100 border border-base-300 shadow-sm mt-[18px]">
         <div class="card-header"><strong>Pedidos cerrados</strong></div>
-        <div class="card-body" style="padding:0;">
-            <table>
+        <div class="card-body overflow-x-auto !p-0">
+            <table class="table">
                 <thead><tr><th>Mesa</th><th>Fecha</th><th>Items</th><th>Total</th></tr></thead>
                 <tbody>
                     @forelse ($report['orders'] as $order)

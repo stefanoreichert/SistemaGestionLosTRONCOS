@@ -1,6 +1,6 @@
 <x-layouts.app title="Mesa {{ $table->number() }}">
     <div class="grid two-columns table-workspace">
-        <div class="card">
+        <div class="card bg-base-100 border border-base-300 shadow-sm">
             <div class="card-header">
                 <strong>Productos disponibles</strong>
                 <span class="badge {{ $table->isOccupied() ? 'red' : 'green' }}">
@@ -13,6 +13,7 @@
                     <div class="product-search-field">
                         <label for="product_name">Buscar producto</label>
                         <input
+                            class="input input-bordered"
                             id="product_name"
                             name="product_name"
                             value="{{ old('product_name') }}"
@@ -23,12 +24,12 @@
                         <div id="product_suggestions" class="search-suggestions"></div>
                         @error('product_name') <div class="error">{{ $message }}</div> @enderror
                     </div>
-                    <button class="btn primary" type="submit">Agregar</button>
+                    <button class="btn primary btn-primary" type="submit">Agregar</button>
                 </form>
 
                 <div class="product-list" id="product_list">
                     @forelse ($productsByCategory as $category => $categoryProducts)
-                        <h3 class="product-category" data-category="{{ $category }}" style="margin:14px 0 4px;font-size:16px;">{{ $category }}</h3>
+                        <h3 class="product-category mt-[14px] mb-1 text-base" data-category="{{ $category }}">{{ $category }}</h3>
                         @foreach ($categoryProducts as $product)
                             <form
                                 class="product-row"
@@ -43,7 +44,7 @@
                                     <strong>{{ $product->name() }}</strong>
                                     <div class="muted">${{ number_format($product->priceInCents() / 100, 0, ',', '.') }}</div>
                                 </div>
-                                <button class="btn primary" type="submit">Agregar</button>
+                                <button class="btn primary btn-primary" type="submit">Agregar</button>
                             </form>
                         @endforeach
                     @empty
@@ -54,10 +55,10 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card bg-base-100 border border-base-300 shadow-sm">
             <div class="card-header"><strong>Consumo actual</strong></div>
-            <div class="card-body" style="padding:0;">
-                <table>
+            <div class="card-body !p-0">
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Producto</th>
@@ -76,16 +77,20 @@
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="product_id" value="{{ $item->productId() }}">
-                                            <input class="quantity-input" type="number" name="quantity" value="{{ $item->quantity() }}" min="1" max="999">
+                                            <input class="quantity-input input input-bordered" type="number" name="quantity" value="{{ $item->quantity() }}" min="1" max="999">
                                         </form>
                                     </td>
                                     <td>${{ number_format($item->subtotalInCents() / 100, 0, ',', '.') }}</td>
                                     <td>
-                                        <form method="POST" action="{{ route('tables.products.destroy', $table->number()) }}">
+                                        <form
+                                            method="POST"
+                                            action="{{ route('tables.products.destroy', $table->number()) }}"
+                                            data-confirm-remove-product
+                                        >
                                             @csrf
                                             @method('DELETE')
                                             <input type="hidden" name="product_id" value="{{ $item->productId() }}">
-                                            <button class="btn danger" type="submit">Quitar</button>
+                                            <button class="btn danger btn-error btn-outline" type="submit">Quitar</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -101,18 +106,18 @@
                         @endif
                     </tbody>
                 </table>
-                <div style="padding:16px;">
+                <div class="p-4">
                     <form method="POST" action="{{ route('tables.close', $table->number()) }}">
                         @csrf
                         <label for="payment_method">Método de pago</label>
-                        <select id="payment_method" name="payment_method" required style="margin-bottom:12px;">
+                        <select class="select select-bordered mb-3" id="payment_method" name="payment_method" required>
                             <option value="">Seleccionar metodo</option>
                             <option value="cash">Efectivo</option>
                             <option value="transfer">Transferencia</option>
                             <option value="card">Tarjeta</option>
                         </select>
-                        @error('payment_method') <div class="error" style="margin-bottom:12px;">{{ $message }}</div> @enderror
-                        <button class="btn danger full" type="submit">Cerrar y liberar mesa</button>
+                        @error('payment_method') <div class="error mb-3">{{ $message }}</div> @enderror
+                        <button class="btn danger full btn-error btn-outline" type="submit">Cerrar y liberar mesa</button>
                     </form>
                 </div>
             </div>

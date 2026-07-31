@@ -116,8 +116,16 @@ class PerformanceOptimizationTest extends TestCase
 
         $this->assertSame('Actualizado', $repository->active()[0]->name());
 
-        $repository->delete((int) $product->id);
+        $entity = $repository->findById((int) $product->id);
+        $this->assertNotNull($entity);
+        $entity->deactivate();
+        $repository->save($entity);
+
         $this->assertSame([], $repository->active());
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'is_active' => false,
+        ]);
     }
 
     public function test_dashboard_uses_consolidated_data_without_duplicate_queries(): void

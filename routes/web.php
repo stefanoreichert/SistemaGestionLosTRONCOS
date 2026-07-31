@@ -9,7 +9,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('dashboard');
 
-Route::resource('products', ProductController::class)->except(['show']);
+Route::resource('products', ProductController::class)->except(['show', 'destroy']);
+Route::patch('products/{product}/availability', [ProductController::class, 'availability'])
+    ->whereNumber('product')
+    ->name('products.availability');
 
 Route::get('tables', [RestaurantTableController::class, 'index'])->name('tables.index');
 Route::get('tables/{number}', [RestaurantTableController::class, 'show'])

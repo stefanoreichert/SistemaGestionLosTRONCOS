@@ -9,9 +9,7 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('products')->delete();
-
-        DB::table('products')->insert([
+        $products = [
             ['category' => 'Entradas', 'name' => 'Papas Fritas simples', 'price' => 10000.00],
             ['category' => 'Entradas', 'name' => 'Papas Fritas gratinadas', 'price' => 13000.00],
             ['category' => 'Entradas', 'name' => 'Mandioca Frita', 'price' => 15000.00],
@@ -176,6 +174,18 @@ class ProductSeeder extends Seeder
             ['category' => 'Tragos', 'name' => 'Caipiriña', 'price' => 6000.00],
             ['category' => 'Tragos', 'name' => 'Daikiri', 'price' => 6000.00],
             ['category' => 'Tragos', 'name' => 'Gin Tonic frutos rojos', 'price' => 6500.00],
-        ]);
+        ];
+
+        foreach ($products as $product) {
+            DB::table('products')->updateOrInsert(
+                [
+                    'category' => $product['category'],
+                    'name' => $product['name'],
+                ],
+                [
+                    'price' => $product['price'],
+                ],
+            );
+        }
     }
 }

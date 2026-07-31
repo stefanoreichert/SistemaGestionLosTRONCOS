@@ -17,6 +17,7 @@ class ProductModel extends Model
         'name',
         'category',
         'price',
+        'is_active',
     ];
 
     /**
@@ -26,6 +27,7 @@ class ProductModel extends Model
     {
         return [
             'price' => 'decimal:2',
+            'is_active' => 'boolean',
         ];
     }
 }

@@ -2,23 +2,24 @@
 
 namespace App\Application\Product\UseCases;
 
-use App\Application\Product\DTOs\ProductInputDTO;
 use App\Domain\Product\Entities\Product;
 use App\Domain\Product\Repositories\ProductRepositoryInterface;
 
-final readonly class UpdateProductUseCase
+final readonly class SetProductAvailabilityUseCase
 {
     public function __construct(private ProductRepositoryInterface $products)
     {
     }
 
-    public function execute(int $id, ProductInputDTO $dto): Product
+    public function execute(int $id, bool $isActive): Product
     {
         $product = $this->products->getById($id);
 
-        $product->rename($dto->name);
-        $product->changePrice($dto->priceInCents);
-        $product->changeCategory($dto->category);
+        if ($isActive) {
+            $product->activate();
+        } else {
+            $product->deactivate();
+        }
 
         return $this->products->save($product);
     }

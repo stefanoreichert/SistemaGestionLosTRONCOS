@@ -1,5 +1,5 @@
 <x-layouts.app title="Mesas">
-    <div class="card">
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
         <div class="card-header"><strong>Gestion de Mesas</strong></div>
         <div class="card-body">
             <div class="legend">
