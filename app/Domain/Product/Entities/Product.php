@@ -9,6 +9,7 @@ final class Product
         private string $name,
         private int $priceInCents,
         private string $category,
+        private bool $isActive = true,
     ) {
         $this->rename($name);
         $this->changePrice($priceInCents);
@@ -33,6 +34,21 @@ final class Product
     public function category(): string
     {
         return $this->category;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function activate(): void
+    {
+        $this->isActive = true;
+    }
+
+    public function deactivate(): void
+    {
+        $this->isActive = false;
     }
 
     public function rename(string $name): void

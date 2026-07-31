@@ -78,7 +78,7 @@ th { color: #344054; font-weight: 700; background: #fafafa; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .field.full { grid-column: 1 / -1; }
 label { display: block; font-weight: 700; margin-bottom: 7px; font-size: 14px; }
-input, select { width: 100%; border: 1px solid #d0d5dd; border-radius: 6px; padding: 10px 12px; background: #fff; color: var(--text); }
+input:not(.toggle), select { width: 100%; border: 1px solid #d0d5dd; border-radius: 6px; padding: 10px 12px; background: #fff; color: var(--text); }
 .quantity-input { width: 82px; min-height: 38px; padding: 8px 10px; }
 .error { color: var(--red); font-size: 13px; margin-top: 6px; }
 .product-list { display: grid; gap: 10px; }

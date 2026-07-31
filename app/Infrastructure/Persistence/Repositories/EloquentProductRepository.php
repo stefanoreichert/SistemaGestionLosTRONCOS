@@ -39,6 +39,7 @@ final class EloquentProductRepository implements ProductRepositoryInterface
         return Cache::rememberForever(
             self::ACTIVE_PRODUCTS_CACHE_KEY,
             fn (): array => ProductModel::query()
+                ->where('is_active', true)
                 ->orderBy('name')
                 ->get()
                 ->map(fn (ProductModel $model): Product => $this->toEntity($model))
@@ -58,6 +59,11 @@ final class EloquentProductRepository implements ProductRepositoryInterface
         return $model instanceof ProductModel ? $this->toEntity($model) : null;
     }
 
+    public function getById(int $id): Product
+    {
+        return $this->toEntity(ProductModel::query()->findOrFail($id));
+    }
+
     public function save(Product $product): Product
     {
         $model = $product->id() !== null
@@ -68,18 +74,13 @@ final class EloquentProductRepository implements ProductRepositoryInterface
             'name' => $product->name(),
             'category' => $product->category(),
             'price' => number_format($product->priceInCents() / 100, 2, '.', ''),
+            'is_active' => $product->isActive(),
         ]);
 
         $model->save();
         Cache::forget(self::ACTIVE_PRODUCTS_CACHE_KEY);
 
         return $this->toEntity($model);
-    }
-
-    public function delete(int $id): void
-    {
-        ProductModel::query()->findOrFail($id)->delete();
-        Cache::forget(self::ACTIVE_PRODUCTS_CACHE_KEY);
     }
 
     private function toEntity(ProductModel $model): Product
@@ -89,6 +90,7 @@ final class EloquentProductRepository implements ProductRepositoryInterface
             name: (string) $model->name,
             priceInCents: (int) round(((float) $model->price) * 100),
             category: (string) $model->category,
+            isActive: (bool) $model->is_active,
         );
     }
 }

@@ -4,10 +4,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? 'Los Troncos Resto Bar' }}</title>
-    @vite(['resources/css/app.css', 'resources/css/layout.css'])
+    @vite(['resources/css/app.css', 'resources/css/layout.css', 'resources/js/app.js'])
 
 </head>
 <body>
+    <div
+        id="flash-messages"
+        data-success="{{ session('success') }}"
+        data-error="{{ session('error') }}"
+        data-warning="{{ session('warning') }}"
+        hidden
+    ></div>
     <div class="app">
         <aside class="sidebar" id="sidebar">
             <div class="brand">

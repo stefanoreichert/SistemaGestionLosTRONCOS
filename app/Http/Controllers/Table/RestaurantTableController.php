@@ -129,7 +129,7 @@ class RestaurantTableController extends Controller
             productId: (int) $request->validated('product_id'),
         ));
 
-        return redirect()->route('tables.show', $number)->with('status', 'Producto eliminado del pedido.');
+        return redirect()->route('tables.show', $number)->with('success', 'Producto quitado del pedido.');
     }
 
     public function close(CloseTableOrderRequest $request, int $number, CloseTableOrderUseCase $useCase): View

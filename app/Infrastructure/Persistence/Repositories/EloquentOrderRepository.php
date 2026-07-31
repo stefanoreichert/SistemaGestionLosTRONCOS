@@ -39,7 +39,9 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
     {
         return DB::transaction(function () use ($tableNumber, $productId): Order {
             $order = $this->openOrderModel($tableNumber);
-            $product = ProductModel::query()->findOrFail($productId);
+            $product = ProductModel::query()
+                ->where('is_active', true)
+                ->findOrFail($productId);
             $item = OrderItemModel::query()
                 ->where('order_id', $order->id)
                 ->where('product_id', $product->id)

@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Product;
 
 use App\Application\Product\DTOs\ProductInputDTO;
 use App\Application\Product\UseCases\CreateProductUseCase;
-use App\Application\Product\UseCases\DeleteProductUseCase;
 use App\Application\Product\UseCases\GetProductUseCase;
 use App\Application\Product\UseCases\ListProductsUseCase;
+use App\Application\Product\UseCases\SetProductAvailabilityUseCase;
 use App\Application\Product\UseCases\UpdateProductUseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
+use App\Http\Requests\Product\UpdateProductAvailabilityRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -63,11 +64,22 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('status', 'Producto actualizado correctamente.');
     }
 
-    public function destroy(int $product, DeleteProductUseCase $useCase): RedirectResponse
-    {
-        $useCase->execute($product);
+    public function availability(
+        UpdateProductAvailabilityRequest $request,
+        int $product,
+        SetProductAvailabilityUseCase $useCase,
+    ): RedirectResponse {
+        $isActive = (bool) $request->boolean('is_active');
+        $useCase->execute($product, $isActive);
 
-        return redirect()->route('products.index')->with('status', 'Producto eliminado correctamente.');
+        return redirect()
+            ->route('products.index')
+            ->with(
+                'success',
+                $isActive
+                    ? 'Producto activado correctamente.'
+                    : 'Producto desactivado correctamente.',
+            );
     }
 
     /**

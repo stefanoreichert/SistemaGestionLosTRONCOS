@@ -27,35 +27,54 @@
                         <th>Nombre</th>
                         <th>Categoria</th>
                         <th>Precio</th>
+                        <th>Disponibilidad</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($products as $product)
-                        <tr>
+                        <tr @class(['bg-base-200/50 opacity-80' => ! $product->isActive()])>
                             <td>
                                 <strong>{{ $product->name() }}</strong>
                             </td>
                             <td>{{ $product->category() }}</td>
                             <td>${{ number_format($product->priceInCents() / 100, 0, ',', '.') }}</td>
                             <td>
+                                <form
+                                    class="flex items-center gap-3 whitespace-nowrap"
+                                    method="POST"
+                                    action="{{ route('products.availability', $product->id()) }}"
+                                    data-product-availability-form
+                                >
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="is_active" value="{{ $product->isActive() ? '0' : '1' }}">
+                                    <input
+                                        type="checkbox"
+                                        class="toggle toggle-success"
+                                        @checked($product->isActive())
+                                        aria-label="{{ $product->isActive() ? 'Desactivar producto' : 'Activar producto' }}"
+                                        data-product-availability-toggle
+                                    >
+                                    <span class="badge {{ $product->isActive() ? 'badge-success' : 'badge-error' }}">
+                                        {{ $product->isActive() ? 'Activo' : 'Inactivo' }}
+                                    </span>
+                                    <span
+                                        class="loading loading-spinner loading-sm hidden"
+                                        aria-label="Procesando"
+                                        data-product-availability-spinner
+                                    ></span>
+                                </form>
+                            </td>
+                            <td>
                                 <div class="actions">
                                     <a class="btn btn-outline" href="{{ route('products.edit', $product->id()) }}">Editar</a>
-                                    <form
-                                        method="POST"
-                                        action="{{ route('products.destroy', $product->id()) }}"
-                                        onsubmit="return confirm('¿Está seguro de que desea eliminar este producto? Esta acción no se puede deshacer.');"
-                                    >
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-error btn-outline danger" type="submit">Eliminar</button>
-                                    </form>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="muted">
+                            <td colspan="5" class="muted">
                                 {{ $search !== '' ? 'No se encontraron productos.' : 'No hay productos cargados.' }}
                             </td>
                         </tr>

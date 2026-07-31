@@ -82,7 +82,11 @@
                                     </td>
                                     <td>${{ number_format($item->subtotalInCents() / 100, 0, ',', '.') }}</td>
                                     <td>
-                                        <form method="POST" action="{{ route('tables.products.destroy', $table->number()) }}">
+                                        <form
+                                            method="POST"
+                                            action="{{ route('tables.products.destroy', $table->number()) }}"
+                                            data-confirm-remove-product
+                                        >
                                             @csrf
                                             @method('DELETE')
                                             <input type="hidden" name="product_id" value="{{ $item->productId() }}">
