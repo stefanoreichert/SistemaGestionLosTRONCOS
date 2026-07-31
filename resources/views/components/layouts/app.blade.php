@@ -66,6 +66,5 @@
             sidebar.classList.toggle('open');
         });
     </script>
-    q
 </body>
 </html>
