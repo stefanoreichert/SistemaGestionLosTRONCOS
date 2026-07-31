@@ -319,3 +319,44 @@ justificar:
 3. qué principio SOLID mejora.
 
 Si no existe una justificación clara, mantener la solución más simple.
+
+# DaisyUI
+
+Este proyecto utiliza DaisyUI como biblioteca principal de componentes.
+
+Objetivos:
+
+- Reducir CSS personalizado.
+- Mantener consistencia visual.
+- Reutilizar componentes existentes.
+- Aprovechar Tailwind y DaisyUI antes de escribir CSS nuevo.
+
+Siempre que exista un componente equivalente en DaisyUI, preferirlo sobre CSS personalizado.
+
+Ejemplos:
+
+- button
+- input
+- select
+- textarea
+- modal
+- drawer
+- dropdown
+- navbar
+- badge
+- alert
+- loading
+- table
+- card
+- menu
+- tabs
+- toast
+- tooltip
+
+No reemplazar componentes de una sola vez.
+
+Migrar gradualmente.
+
+No modificar el comportamiento.
+
+Mantener la identidad visual del restaurante mediante un tema personalizado.

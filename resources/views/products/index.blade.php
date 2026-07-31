@@ -1,27 +1,27 @@
 <x-layouts.app title="Productos">
-    <div class="card">
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
         <div class="card-header">
             <strong>Productos</strong>
-            <a class="btn primary" href="{{ route('products.create') }}">Crear producto</a>
+            <a class="btn btn-primary primary" href="{{ route('products.create') }}">Crear producto</a>
         </div>
         <div class="card-body">
-            <form method="GET" action="{{ route('products.index') }}" style="display:flex;gap:10px;flex-wrap:wrap;">
+            <form class="flex flex-wrap gap-[10px]" method="GET" action="{{ route('products.index') }}">
                 <input
+                    class="input input-bordered flex-1 min-w-[220px]"
                     type="search"
                     name="search"
                     value="{{ $search }}"
                     placeholder="Buscar por nombre o categoría"
                     aria-label="Buscar productos"
-                    style="flex:1;min-width:220px;"
                 >
-                <button class="btn primary" type="submit">Buscar</button>
+                <button class="btn btn-primary primary" type="submit">Buscar</button>
                 @if ($search !== '')
-                    <a class="btn" href="{{ route('products.index') }}">Limpiar</a>
+                    <a class="btn btn-outline" href="{{ route('products.index') }}">Limpiar</a>
                 @endif
             </form>
         </div>
-        <div class="card-body" style="padding:0;">
-            <table>
+        <div class="card-body overflow-x-auto !p-0">
+            <table class="table">
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -40,7 +40,7 @@
                             <td>${{ number_format($product->priceInCents() / 100, 0, ',', '.') }}</td>
                             <td>
                                 <div class="actions">
-                                    <a class="btn" href="{{ route('products.edit', $product->id()) }}">Editar</a>
+                                    <a class="btn btn-outline" href="{{ route('products.edit', $product->id()) }}">Editar</a>
                                     <form
                                         method="POST"
                                         action="{{ route('products.destroy', $product->id()) }}"
@@ -48,7 +48,7 @@
                                     >
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn danger" type="submit">Eliminar</button>
+                                        <button class="btn btn-error btn-outline danger" type="submit">Eliminar</button>
                                     </form>
                                 </div>
                             </td>
