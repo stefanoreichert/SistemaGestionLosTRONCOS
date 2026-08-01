@@ -60,18 +60,18 @@ class PerformanceOptimizationTest extends TestCase
         $repository = app(EloquentOrderRepository::class);
 
         foreach ([
-            fn () => $repository->addProduct(1, (int) $product->id),
-            fn () => $repository->updateProductQuantity(1, (int) $product->id, 3),
-            fn () => $repository->removeProductUnit(1, (int) $product->id),
-            fn () => $repository->removeProduct(1, (int) $product->id),
+            fn () => $repository->addProduct(1, (int) $product->id, true, null),
+            fn () => $repository->updateProductQuantity(1, (int) $product->id, 3, true, null),
+            fn () => $repository->removeProductUnit(1, (int) $product->id, true, null),
+            fn () => $repository->removeProduct(1, (int) $product->id, true, null),
         ] as $operation) {
             $queries = $this->queriesDuring($operation);
             $this->assertFalse($this->containsOrderLookupThroughTables($queries));
         }
 
-        $repository->addProduct(1, (int) $product->id);
+        $repository->addProduct(1, (int) $product->id, true, null);
         $queries = $this->queriesDuring(
-            fn () => $repository->closeByTableNumber(1, 'cash'),
+            fn () => $repository->closeByTableNumber(1, 'cash', true, null),
         );
 
         $this->assertFalse($this->containsOrderLookupThroughTables($queries));
@@ -195,7 +195,7 @@ class PerformanceOptimizationTest extends TestCase
     }
 
     /**
-     * @param list<array{query: string, bindings: array, time: float}> $queries
+     * @param  list<array{query: string, bindings: array, time: float}>  $queries
      */
     private function containsOrderLookupThroughTables(array $queries): bool
     {

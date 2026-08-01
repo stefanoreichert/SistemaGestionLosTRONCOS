@@ -92,7 +92,7 @@ class ProductAvailabilityTest extends TestCase
     {
         TableModel::query()->create(['number' => 1]);
         $product = $this->product('Producto del pedido');
-        app(EloquentOrderRepository::class)->addProduct(1, (int) $product->id);
+        app(EloquentOrderRepository::class)->addProduct(1, (int) $product->id, true, null);
 
         $product->is_active = false;
         $product->save();

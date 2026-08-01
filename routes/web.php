@@ -21,28 +21,30 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('waiter')
         ->name('waiters.availability');
 
-    Route::get('tables', [RestaurantTableController::class, 'index'])->name('tables.index');
-    Route::get('tables/{number}', [RestaurantTableController::class, 'show'])
-        ->whereNumber('number')
-        ->name('tables.show');
-    Route::post('tables/{number}/products', [RestaurantTableController::class, 'addProduct'])
-        ->whereNumber('number')
-        ->name('tables.products.store');
-    Route::post('tables/{number}/products/search', [RestaurantTableController::class, 'addProductByName'])
-        ->whereNumber('number')
-        ->name('tables.products.search');
-    Route::post('tables/{number}/products/remove-unit', [RestaurantTableController::class, 'removeUnit'])
-        ->whereNumber('number')
-        ->name('tables.products.remove-unit');
-    Route::patch('tables/{number}/products/quantity', [RestaurantTableController::class, 'updateQuantity'])
-        ->whereNumber('number')
-        ->name('tables.products.quantity');
-    Route::delete('tables/{number}/products', [RestaurantTableController::class, 'removeProduct'])
-        ->whereNumber('number')
-        ->name('tables.products.destroy');
-    Route::post('tables/{number}/close', [RestaurantTableController::class, 'close'])
-        ->whereNumber('number')
-        ->name('tables.close');
+    Route::middleware(['active', 'role:admin,waiter'])->group(function (): void {
+        Route::get('tables', [RestaurantTableController::class, 'index'])->name('tables.index');
+        Route::get('tables/{number}', [RestaurantTableController::class, 'show'])
+            ->whereNumber('number')
+            ->name('tables.show');
+        Route::post('tables/{number}/products', [RestaurantTableController::class, 'addProduct'])
+            ->whereNumber('number')
+            ->name('tables.products.store');
+        Route::post('tables/{number}/products/search', [RestaurantTableController::class, 'addProductByName'])
+            ->whereNumber('number')
+            ->name('tables.products.search');
+        Route::post('tables/{number}/products/remove-unit', [RestaurantTableController::class, 'removeUnit'])
+            ->whereNumber('number')
+            ->name('tables.products.remove-unit');
+        Route::patch('tables/{number}/products/quantity', [RestaurantTableController::class, 'updateQuantity'])
+            ->whereNumber('number')
+            ->name('tables.products.quantity');
+        Route::delete('tables/{number}/products', [RestaurantTableController::class, 'removeProduct'])
+            ->whereNumber('number')
+            ->name('tables.products.destroy');
+        Route::post('tables/{number}/close', [RestaurantTableController::class, 'close'])
+            ->whereNumber('number')
+            ->name('tables.close');
+    });
 
     Route::get('reports/daily', [ReportController::class, 'daily'])->name('reports.daily');
     Route::get('reports/monthly', [ReportController::class, 'monthly'])->name('reports.monthly');
