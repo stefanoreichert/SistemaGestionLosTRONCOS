@@ -5,7 +5,7 @@ namespace App\Domain\Table\Entities;
 final readonly class Order
 {
     /**
-     * @param list<OrderItem> $items
+     * @param  list<OrderItem>  $items
      */
     public function __construct(
         private ?int $id,
@@ -16,11 +16,12 @@ final readonly class Order
         private int $totalInCents,
         private ?string $paymentMethod,
         private ?string $ticketNumber,
+        private ?int $waiterId,
+        private ?string $waiterName,
         private string $openedAt,
         private ?string $closedAt,
         private array $items,
-    ) {
-    }
+    ) {}
 
     public function id(): ?int
     {
@@ -60,6 +61,16 @@ final readonly class Order
     public function ticketNumber(): ?string
     {
         return $this->ticketNumber;
+    }
+
+    public function waiterId(): ?int
+    {
+        return $this->waiterId;
+    }
+
+    public function waiterName(): ?string
+    {
+        return $this->waiterName;
     }
 
     public function openedAt(): string

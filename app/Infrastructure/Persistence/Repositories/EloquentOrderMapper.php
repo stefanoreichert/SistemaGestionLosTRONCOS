@@ -20,6 +20,8 @@ final class EloquentOrderMapper
             totalInCents: (int) round(((float) $model->total) * 100),
             paymentMethod: $model->payment_method !== null ? (string) $model->payment_method : null,
             ticketNumber: $model->ticket_number !== null ? (string) $model->ticket_number : null,
+            waiterId: $model->waiter_id !== null ? (int) $model->waiter_id : null,
+            waiterName: $model->waiter !== null ? (string) $model->waiter->name : null,
             openedAt: $model->opened_at?->format('Y-m-d H:i:s') ?? '',
             closedAt: $model->closed_at?->format('Y-m-d H:i:s'),
             items: $model->items

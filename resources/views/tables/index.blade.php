@@ -30,6 +30,14 @@
                                     {{ $table->isOccupied() ? '🔴 Ocupada' : '🟢 Libre' }}
                                 </span>
 
+                                @if ($table->isOccupied())
+                                    <span class="text-sm font-medium text-base-content/70">
+                                        {{ $table->openOrder()?->waiterName() !== null
+                                            ? 'Atiende: '.$table->openOrder()->waiterName()
+                                            : 'Mozo no asignado' }}
+                                    </span>
+                                @endif
+
                                 <div class="divider my-0"></div>
 
                                 <span class="btn w-full {{ $table->isOccupied() ? 'btn-error' : 'btn-success' }}">

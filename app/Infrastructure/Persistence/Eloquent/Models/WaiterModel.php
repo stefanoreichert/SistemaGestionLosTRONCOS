@@ -3,6 +3,7 @@
 namespace App\Infrastructure\Persistence\Eloquent\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WaiterModel extends Model
 {
@@ -26,5 +27,15 @@ class WaiterModel extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(OrderModel::class, 'waiter_id');
+    }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class, 'waiter_id');
     }
 }

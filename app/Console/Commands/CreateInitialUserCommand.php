@@ -43,6 +43,8 @@ class CreateInitialUserCommand extends Command
             'name' => trim($name),
             'email' => mb_strtolower(trim($email)),
             'password' => Hash::make($password),
+            'role' => User::ROLE_ADMIN,
+            'is_active' => true,
         ]);
 
         $this->info('Usuario creado correctamente.');
