@@ -8,12 +8,14 @@ use App\Domain\Table\Repositories\OrderRepositoryInterface;
 
 final readonly class AddProductToOrderUseCase
 {
-    public function __construct(private OrderRepositoryInterface $orders)
-    {
-    }
+    public function __construct(private OrderRepositoryInterface $orders) {}
 
     public function execute(AddProductToOrderDTO $dto): Order
     {
-        return $this->orders->addProduct($dto->tableNumber, $dto->productId);
+        return $this->orders->addProduct(
+            $dto->tableNumber,
+            $dto->productId,
+            $dto->authenticatedWaiterId,
+        );
     }
 }

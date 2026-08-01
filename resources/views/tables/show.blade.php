@@ -2,10 +2,19 @@
     <div class="grid two-columns table-workspace">
         <div class="card bg-base-100 border border-base-300 shadow-sm">
             <div class="card-header">
-                <strong>Productos disponibles</strong>
-                <span class="badge {{ $table->isOccupied() ? 'red' : 'green' }}">
-                    {{ $table->isOccupied() ? 'Ocupada' : 'Libre' }}
-                </span>
+                <div>
+                    <strong>Productos disponibles</strong>
+                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                        <span class="badge {{ $table->isOccupied() ? 'badge-error' : 'badge-success' }}">
+                            {{ $table->isOccupied() ? 'Ocupada' : 'Libre' }}
+                        </span>
+                        <span class="badge badge-outline">
+                            {{ $table->openOrder()?->waiterName() !== null
+                                ? 'Atiende: '.$table->openOrder()->waiterName()
+                                : 'Mozo no asignado' }}
+                        </span>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
                 <form class="product-search" method="POST" action="{{ route('tables.products.search', $table->number()) }}">

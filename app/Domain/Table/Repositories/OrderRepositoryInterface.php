@@ -10,7 +10,7 @@ interface OrderRepositoryInterface
 
     public function findOpenByTableNumber(int $tableNumber): ?Order;
 
-    public function addProduct(int $tableNumber, int $productId): Order;
+    public function addProduct(int $tableNumber, int $productId, ?int $authenticatedWaiterId = null): Order;
 
     public function removeProductUnit(int $tableNumber, int $productId): Order;
 

@@ -8,14 +8,13 @@ use App\Infrastructure\Persistence\Eloquent\Models\OrderItemModel;
 use App\Infrastructure\Persistence\Eloquent\Models\OrderModel;
 use App\Infrastructure\Persistence\Eloquent\Models\ProductModel;
 use App\Infrastructure\Persistence\Eloquent\Models\TableModel;
+use App\Infrastructure\Persistence\Eloquent\Models\WaiterModel;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 final readonly class EloquentOrderRepository implements OrderRepositoryInterface
 {
-    public function __construct(private EloquentOrderMapper $mapper)
-    {
-    }
+    public function __construct(private EloquentOrderMapper $mapper) {}
 
     public function openForTableNumber(int $tableNumber): Order
     {
@@ -27,7 +26,7 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
     public function findOpenByTableNumber(int $tableNumber): ?Order
     {
         $order = OrderModel::query()
-            ->with(['table', 'items.product'])
+            ->with(['table', 'waiter', 'items.product'])
             ->where('status', 'open')
             ->whereHas('table', fn ($query) => $query->where('number', $tableNumber))
             ->first();
@@ -35,10 +34,11 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         return $order instanceof OrderModel ? $this->mapper->toEntity($order) : null;
     }
 
-    public function addProduct(int $tableNumber, int $productId): Order
+    public function addProduct(int $tableNumber, int $productId, ?int $authenticatedWaiterId = null): Order
     {
-        return DB::transaction(function () use ($tableNumber, $productId): Order {
-            $order = $this->openOrderModel($tableNumber);
+        return DB::transaction(function () use ($tableNumber, $productId, $authenticatedWaiterId): Order {
+            $order = $this->lockOpenOrderModel($tableNumber);
+            $this->assignActiveWaiterIfMissing($order, $authenticatedWaiterId);
             $product = ProductModel::query()
                 ->where('is_active', true)
                 ->findOrFail($productId);
@@ -172,7 +172,7 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
     public function recentClosed(int $limit): array
     {
         return OrderModel::query()
-            ->with(['table', 'items.product'])
+            ->with(['table', 'waiter', 'items.product'])
             ->where('status', 'closed')
             ->latest('closed_at')
             ->limit($limit)
@@ -208,7 +208,7 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         [$start, $end] = $this->monthRange($month, $year);
 
         $orders = OrderModel::query()
-            ->with(['table', 'items.product'])
+            ->with(['table', 'waiter', 'items.product'])
             ->where('status', 'closed')
             ->whereBetween('closed_at', [$start, $end])
             ->get();
@@ -248,9 +248,35 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
 
     private function freshOrder(OrderModel $order): Order
     {
-        $order = OrderModel::query()->with(['table', 'items.product'])->findOrFail($order->id);
+        $order = OrderModel::query()->with(['table', 'waiter', 'items.product'])->findOrFail($order->id);
 
         return $this->mapper->toEntity($order);
+    }
+
+    private function lockOpenOrderModel(int $tableNumber): OrderModel
+    {
+        $order = $this->openOrderModel($tableNumber);
+
+        return OrderModel::query()->lockForUpdate()->findOrFail($order->id);
+    }
+
+    private function assignActiveWaiterIfMissing(OrderModel $order, ?int $authenticatedWaiterId): void
+    {
+        if ($order->waiter_id !== null || $authenticatedWaiterId === null) {
+            return;
+        }
+
+        $isActiveWaiter = WaiterModel::query()
+            ->whereKey($authenticatedWaiterId)
+            ->where('is_active', true)
+            ->exists();
+
+        if (! $isActiveWaiter) {
+            return;
+        }
+
+        $order->waiter_id = $authenticatedWaiterId;
+        $order->save();
     }
 
     private function findItem(OrderModel $order, int $productId): OrderItemModel
@@ -274,7 +300,7 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         [$start, $end] = $this->dayRange($date);
 
         return OrderModel::query()
-            ->with(['table', 'items.product'])
+            ->with(['table', 'waiter', 'items.product'])
             ->where('status', 'closed')
             ->whereBetween('closed_at', [$start, $end])
             ->get();

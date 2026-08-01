@@ -8,9 +8,7 @@ use App\Infrastructure\Persistence\Eloquent\Models\TableModel;
 
 final class EloquentRestaurantTableRepository implements RestaurantTableRepositoryInterface
 {
-    public function __construct(private readonly EloquentOrderMapper $orders)
-    {
-    }
+    public function __construct(private readonly EloquentOrderMapper $orders) {}
 
     public function ensureRange(int $from, int $to): void
     {
@@ -27,7 +25,7 @@ final class EloquentRestaurantTableRepository implements RestaurantTableReposito
         $missingTables = [];
 
         for ($number = $from; $number <= $to; $number++) {
-            if (!isset($existingNumbers[$number])) {
+            if (! isset($existingNumbers[$number])) {
                 $missingTables[] = ['number' => $number];
             }
         }
@@ -40,7 +38,7 @@ final class EloquentRestaurantTableRepository implements RestaurantTableReposito
     public function allWithOpenOrder(): array
     {
         return TableModel::query()
-            ->with('openOrder.items.product')
+            ->with(['openOrder.waiter', 'openOrder.items.product'])
             ->orderBy('number')
             ->get()
             ->map(fn (TableModel $model): RestaurantTable => $this->toEntity($model))
@@ -50,7 +48,7 @@ final class EloquentRestaurantTableRepository implements RestaurantTableReposito
     public function findByNumberWithOpenOrder(int $number): ?RestaurantTable
     {
         $model = TableModel::query()
-            ->with('openOrder.items.product')
+            ->with(['openOrder.waiter', 'openOrder.items.product'])
             ->where('number', $number)
             ->first();
 

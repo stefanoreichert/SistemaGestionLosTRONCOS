@@ -12,15 +12,13 @@ use Illuminate\Support\Facades\DB;
 
 final readonly class EloquentTicketRepository implements TicketRepositoryInterface
 {
-    public function __construct(private EloquentOrderMapper $mapper)
-    {
-    }
+    public function __construct(private EloquentOrderMapper $mapper) {}
 
     public function assignNextTicketNumber(int $orderId): Order
     {
         return DB::transaction(function () use ($orderId): Order {
             $order = OrderModel::query()
-                ->with(['table', 'items.product'])
+                ->with(['table', 'waiter', 'items.product'])
                 ->where('status', 'closed')
                 ->lockForUpdate()
                 ->findOrFail($orderId);
@@ -37,7 +35,7 @@ final readonly class EloquentTicketRepository implements TicketRepositoryInterfa
     public function findClosedById(int $orderId): ?Order
     {
         $order = OrderModel::query()
-            ->with(['table', 'items.product'])
+            ->with(['table', 'waiter', 'items.product'])
             ->where('status', 'closed')
             ->find($orderId);
 
@@ -47,7 +45,7 @@ final readonly class EloquentTicketRepository implements TicketRepositoryInterfa
     public function listClosed(TicketFiltersDTO $filters): array
     {
         return OrderModel::query()
-            ->with(['table', 'items.product'])
+            ->with(['table', 'waiter', 'items.product'])
             ->where('status', 'closed')
             ->when(
                 $filters->from !== null,
@@ -88,7 +86,7 @@ final readonly class EloquentTicketRepository implements TicketRepositoryInterfa
 
     private function freshOrder(OrderModel $order): Order
     {
-        $fresh = OrderModel::query()->with(['table', 'items.product'])->findOrFail($order->id);
+        $fresh = OrderModel::query()->with(['table', 'waiter', 'items.product'])->findOrFail($order->id);
 
         return $this->mapper->toEntity($fresh);
     }

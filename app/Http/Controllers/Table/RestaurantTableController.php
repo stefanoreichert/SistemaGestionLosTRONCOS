@@ -15,14 +15,16 @@ use App\Application\Table\UseCases\OpenTableOrderUseCase;
 use App\Application\Table\UseCases\RemoveProductFromOrderUseCase;
 use App\Application\Table\UseCases\RemoveProductUnitUseCase;
 use App\Application\Table\UseCases\UpdateProductQuantityUseCase;
+use App\Domain\Table\Entities\RestaurantTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Table\AddProductToTableRequest;
 use App\Http\Requests\Table\CloseTableOrderRequest;
 use App\Http\Requests\Table\RemoveProductFromOrderRequest;
 use App\Http\Requests\Table\SearchProductForTableRequest;
 use App\Http\Requests\Table\UpdateProductQuantityRequest;
-use App\Domain\Table\Entities\RestaurantTable;
+use App\Infrastructure\Persistence\Eloquent\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class RestaurantTableController extends Controller
@@ -65,6 +67,7 @@ class RestaurantTableController extends Controller
         $useCase->execute(new AddProductToOrderDTO(
             tableNumber: $number,
             productId: (int) $request->validated('product_id'),
+            authenticatedWaiterId: $this->authenticatedWaiterId($request),
         ));
 
         return redirect()->route('tables.show', $number)->with('status', 'Producto agregado a la mesa.');
@@ -87,6 +90,7 @@ class RestaurantTableController extends Controller
         $useCase->execute(new AddProductToOrderDTO(
             tableNumber: $number,
             productId: (int) $product->id(),
+            authenticatedWaiterId: $this->authenticatedWaiterId($request),
         ));
 
         return redirect()->route('tables.show', $number)->with('status', 'Producto agregado a la mesa.');
@@ -143,7 +147,7 @@ class RestaurantTableController extends Controller
     }
 
     /**
-     * @param array<int, object> $products
+     * @param  array<int, object>  $products
      * @return array<string, array<int, object>>
      */
     private function groupProductsByCategory(array $products): array
@@ -160,7 +164,7 @@ class RestaurantTableController extends Controller
     }
 
     /**
-     * @param array<int, object> $products
+     * @param  array<int, object>  $products
      */
     private function findProductByName(string $search, array $products): ?object
     {
@@ -180,5 +184,16 @@ class RestaurantTableController extends Controller
         }
 
         return $partialMatch;
+    }
+
+    private function authenticatedWaiterId(Request $request): ?int
+    {
+        $user = $request->user();
+
+        if (! $user instanceof User || ! $user->isWaiter() || $user->waiter_id === null) {
+            return null;
+        }
+
+        return (int) $user->waiter_id;
     }
 }

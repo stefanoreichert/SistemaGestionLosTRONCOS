@@ -17,6 +17,7 @@ class OrderModel extends Model
      */
     protected $fillable = [
         'table_id',
+        'waiter_id',
         'status',
         'subtotal',
         'total',
@@ -36,6 +37,7 @@ class OrderModel extends Model
             'total' => 'decimal:2',
             'opened_at' => 'datetime',
             'closed_at' => 'datetime',
+            'waiter_id' => 'integer',
         ];
     }
 
@@ -47,5 +49,10 @@ class OrderModel extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItemModel::class, 'order_id');
+    }
+
+    public function waiter(): BelongsTo
+    {
+        return $this->belongsTo(WaiterModel::class, 'waiter_id');
     }
 }
