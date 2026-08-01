@@ -10,9 +10,13 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    public const ROLE_ADMIN = 'admin';
+    public const ROLE_ADMIN = 'ADMIN';
 
-    public const ROLE_WAITER = 'waiter';
+    public const ROLE_MOZO = 'MOZO';
+
+    public const ROLE_CAJA = 'CAJA';
+
+    public const ROLE_WAITER = self::ROLE_MOZO;
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -64,6 +68,11 @@ class User extends Authenticatable
 
     public function isWaiter(): bool
     {
-        return $this->role === self::ROLE_WAITER;
+        return $this->role === self::ROLE_MOZO;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
     }
 }
