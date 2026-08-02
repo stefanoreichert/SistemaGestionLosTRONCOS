@@ -95,4 +95,5 @@ class User extends Authenticatable
     {
         return array_map(static fn (UserRole $role): string => $role->value, UserRole::cases());
     }
+
 }

@@ -7,6 +7,5 @@ final readonly class AddProductToOrderDTO
     public function __construct(
         public int $tableNumber,
         public int $productId,
-        public ?int $authenticatedWaiterId = null,
     ) {}
 }

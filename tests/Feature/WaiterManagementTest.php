@@ -23,12 +23,12 @@ class WaiterManagementTest extends TestCase
         $this->assertSame('Ana Activa', $repository->active()[0]->name());
     }
 
-    public function test_waiter_management_has_no_direct_web_routes(): void
+    public function test_waiter_management_routes_from_main_are_preserved(): void
     {
-        $this->assertFalse(Route::has('waiters.index'));
-        $this->assertFalse(Route::has('waiters.store'));
-        $this->assertFalse(Route::has('waiters.update'));
-        $this->assertFalse(Route::has('waiters.availability'));
+        $this->assertTrue(Route::has('waiters.index'));
+        $this->assertTrue(Route::has('waiters.store'));
+        $this->assertTrue(Route::has('waiters.update'));
+        $this->assertTrue(Route::has('waiters.availability'));
     }
 
     private function waiter(

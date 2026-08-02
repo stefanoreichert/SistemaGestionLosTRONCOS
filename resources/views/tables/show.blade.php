@@ -1,4 +1,10 @@
 <x-layouts.app title="Mesa {{ $table->number() }}">
+    @if ($isAssignedToAnotherWaiter)
+        <div class="alert alert-warning mb-4" role="alert">
+            <span>Esta mesa está siendo atendida por {{ $table->openOrder()->waiterName() }}.</span>
+        </div>
+    @endif
+
     <div class="grid two-columns table-workspace">
         <div class="card bg-base-100 border border-base-300 shadow-sm">
             <div class="card-header">
@@ -17,6 +23,7 @@
                 </div>
             </div>
             <div class="card-body">
+                @if ($canAddProducts)
                 <form class="product-search" method="POST" action="{{ route('tables.products.search', $table->number()) }}">
                     @csrf
                     <div class="product-search-field">
@@ -61,6 +68,11 @@
                     @endforelse
                     <div class="muted" id="product_empty_search" style="display:none;">No hay productos que coincidan.</div>
                 </div>
+                @else
+                    <div class="alert alert-info">
+                        <span>Los productos disponibles están en modo de solo lectura.</span>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -73,7 +85,9 @@
                             <th>Producto</th>
                             <th>Cant.</th>
                             <th>Subtotal</th>
-                            <th>Quitar</th>
+                            @if ($canModifyOrder)
+                                <th>Quitar</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -82,40 +96,47 @@
                                 <tr>
                                     <td>{{ $item->productName() }}</td>
                                     <td>
-                                        <form class="quantity-form" method="POST" action="{{ route('tables.products.quantity', $table->number()) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="product_id" value="{{ $item->productId() }}">
-                                            <input class="quantity-input input input-bordered" type="number" name="quantity" value="{{ $item->quantity() }}" min="1" max="999">
-                                        </form>
+                                        @if ($canModifyOrder)
+                                            <form class="quantity-form" method="POST" action="{{ route('tables.products.quantity', $table->number()) }}">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="product_id" value="{{ $item->productId() }}">
+                                                <input class="quantity-input input input-bordered" type="number" name="quantity" value="{{ $item->quantity() }}" min="1" max="999">
+                                            </form>
+                                        @else
+                                            <span>{{ $item->quantity() }}</span>
+                                        @endif
                                     </td>
                                     <td>${{ number_format($item->subtotalInCents() / 100, 0, ',', '.') }}</td>
-                                    <td>
-                                        <form
-                                            method="POST"
-                                            action="{{ route('tables.products.destroy', $table->number()) }}"
-                                            data-confirm-remove-product
-                                        >
-                                            @csrf
-                                            @method('DELETE')
-                                            <input type="hidden" name="product_id" value="{{ $item->productId() }}">
-                                            <button class="btn danger btn-error btn-outline" type="submit">Quitar</button>
-                                        </form>
-                                    </td>
+                                    @if ($canModifyOrder)
+                                        <td>
+                                            <form
+                                                method="POST"
+                                                action="{{ route('tables.products.destroy', $table->number()) }}"
+                                                data-confirm-remove-product
+                                            >
+                                                @csrf
+                                                @method('DELETE')
+                                                <input type="hidden" name="product_id" value="{{ $item->productId() }}">
+                                                <button class="btn danger btn-error btn-outline" type="submit">Quitar</button>
+                                            </form>
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
-                                <tr><td colspan="4" class="muted">La mesa no tiene productos cargados.</td></tr>
+                                <tr><td colspan="{{ $canModifyOrder ? 4 : 3 }}" class="muted">La mesa no tiene productos cargados.</td></tr>
                             @endforelse
                             <tr>
                                 <td colspan="2"><strong>Total</strong></td>
-                                <td colspan="2"><strong>${{ number_format($table->openOrder()->totalInCents() / 100, 0, ',', '.') }}</strong></td>
+                                <td colspan="{{ $canModifyOrder ? 2 : 1 }}"><strong>${{ number_format($table->openOrder()->totalInCents() / 100, 0, ',', '.') }}</strong></td>
                             </tr>
                         @else
-                            <tr><td colspan="4" class="muted">La mesa no tiene pedido abierto.</td></tr>
+                            <tr><td colspan="{{ $canModifyOrder ? 4 : 3 }}" class="muted">La mesa no tiene pedido abierto.</td></tr>
                         @endif
                     </tbody>
                 </table>
                 <div class="p-4">
+                    @if ($canModifyOrder)
                     <form method="POST" action="{{ route('tables.close', $table->number()) }}">
                         @csrf
                         <label for="payment_method">Método de pago</label>
@@ -128,6 +149,7 @@
                         @error('payment_method') <div class="error mb-3">{{ $message }}</div> @enderror
                         <button class="btn danger full btn-error btn-outline" type="submit">Cerrar y liberar mesa</button>
                     </form>
+                    @endif
                 </div>
             </div>
         </div>
