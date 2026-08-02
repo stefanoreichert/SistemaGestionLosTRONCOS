@@ -1,15 +1,18 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Kitchen\KitchenController;
+use App\Http\Controllers\Kitchen\WaiterKitchenNotificationController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Table\RestaurantTableController;
 use App\Http\Controllers\Ticket\TicketController;
+use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Waiter\WaiterController;
 use App\Infrastructure\Persistence\Eloquent\Models\User;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware(['auth', 'active'])->group(function (): void {
     Route::middleware('role:'.User::ROLE_ADMIN.','.User::ROLE_CAJA)->group(function (): void {
         Route::get('/', DashboardController::class)->name('dashboard');
 
@@ -37,6 +40,15 @@ Route::middleware('auth')->group(function (): void {
             ->name('tickets.reprint');
     });
 
+    Route::middleware('role:'.User::ROLE_ADMIN)->group(function (): void {
+        Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::get('users/{user}/edit', [UserController::class, 'edit'])->whereNumber('user')->name('users.edit');
+        Route::put('users/{user}', [UserController::class, 'update'])->whereNumber('user')->name('users.update');
+        Route::patch('users/{user}/password', [UserController::class, 'password'])
+            ->whereNumber('user')
+            ->name('users.password');
+    });
+
     Route::middleware('role:'.User::ROLE_ADMIN.','.User::ROLE_CAJA.','.User::ROLE_MOZO)->group(function (): void {
         Route::get('tables', [RestaurantTableController::class, 'index'])->name('tables.index');
         Route::get('tables/{number}', [RestaurantTableController::class, 'show'])
@@ -61,6 +73,18 @@ Route::middleware('auth')->group(function (): void {
             ->whereNumber('number')
             ->name('tables.close');
     });
+
+    Route::middleware('role:'.User::ROLE_ADMIN.','.User::ROLE_KITCHEN)->group(function (): void {
+        Route::get('kitchen', [KitchenController::class, 'index'])->name('kitchen.index');
+        Route::get('kitchen/orders', [KitchenController::class, 'orders'])->name('kitchen.orders');
+        Route::patch('kitchen/orders/{order}/status', [KitchenController::class, 'update'])
+            ->whereNumber('order')
+            ->name('kitchen.orders.status');
+    });
+
+    Route::get('tables/kitchen-notifications', WaiterKitchenNotificationController::class)
+        ->middleware('role:'.User::ROLE_MOZO)
+        ->name('tables.kitchen-notifications');
 });
 
 require __DIR__.'/auth.php';

@@ -10,7 +10,7 @@ final class EnsureUserHasRole
 {
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        abort_unless(in_array($request->user()?->role, $roles, true), 403);
+        abort_unless(in_array($request->user()?->role, $roles, true), 403, 'No tiene permiso para acceder a esta sección.');
 
         return $next($request);
     }

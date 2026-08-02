@@ -16,6 +16,8 @@ class User extends Authenticatable
 
     public const ROLE_CAJA = 'CAJA';
 
+    public const ROLE_KITCHEN = 'COCINA';
+
     public const ROLE_WAITER = self::ROLE_MOZO;
 
     /** @use HasFactory<UserFactory> */
@@ -74,5 +76,10 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isKitchen(): bool
+    {
+        return $this->role === self::ROLE_KITCHEN;
     }
 }
