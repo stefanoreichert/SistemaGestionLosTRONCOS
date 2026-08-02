@@ -30,6 +30,14 @@
         <input class="input input-bordered" id="price" name="price" type="number" min="1" step="1" value="{{ old('price', $isEdit ? $product->priceInCents() / 100 : '') }}" required>
         @error('price') <div class="error">{{ $message }}</div> @enderror
     </div>
+    <div class="field">
+        <label class="label cursor-pointer justify-start gap-3" for="requires_kitchen">
+            <input type="hidden" name="requires_kitchen" value="0">
+            <input class="toggle toggle-success" id="requires_kitchen" name="requires_kitchen" type="checkbox" value="1" @checked((bool) old('requires_kitchen', $isEdit ? $product->requiresKitchen() : true))>
+            <span>Requiere preparación en cocina</span>
+        </label>
+        @error('requires_kitchen') <div class="error">{{ $message }}</div> @enderror
+    </div>
 </div>
 
 <div class="flex gap-[10px] mt-[18px]">

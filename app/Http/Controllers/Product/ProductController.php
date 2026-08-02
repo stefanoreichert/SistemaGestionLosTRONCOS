@@ -83,7 +83,7 @@ class ProductController extends Controller
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function toDto(array $data): ProductInputDTO
     {
@@ -91,6 +91,7 @@ class ProductController extends Controller
             name: (string) $data['name'],
             priceInCents: (int) round(((float) $data['price']) * 100),
             category: (string) $data['category'],
+            requiresKitchen: (bool) $data['requires_kitchen'],
         );
     }
 }

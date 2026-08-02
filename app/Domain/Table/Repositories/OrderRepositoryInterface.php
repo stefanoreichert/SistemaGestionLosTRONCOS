@@ -10,15 +10,23 @@ interface OrderRepositoryInterface
 
     public function findOpenByTableNumber(int $tableNumber): ?Order;
 
-    public function addProduct(int $tableNumber, int $productId, ?int $authenticatedWaiterId = null): Order;
+    public function addProduct(int $tableNumber, int $productId, bool $isAdmin, ?int $waiterId): Order;
 
-    public function removeProductUnit(int $tableNumber, int $productId): Order;
+    public function removeProductUnit(int $tableNumber, int $productId, bool $isAdmin, ?int $waiterId): Order;
 
-    public function updateProductQuantity(int $tableNumber, int $productId, int $quantity): Order;
+    public function updateProductQuantity(int $tableNumber, int $productId, int $quantity, bool $isAdmin, ?int $waiterId): Order;
 
-    public function removeProduct(int $tableNumber, int $productId): Order;
+    public function removeProduct(int $tableNumber, int $productId, bool $isAdmin, ?int $waiterId): Order;
 
-    public function closeByTableNumber(int $tableNumber, string $paymentMethod): Order;
+    public function closeByTableNumber(int $tableNumber, string $paymentMethod, bool $isAdmin, ?int $waiterId): Order;
+
+    /** @return list<Order> */
+    public function activeKitchenOrders(): array;
+
+    public function updateKitchenStatus(int $orderId, string $nextStatus): Order;
+
+    /** @return list<Order> */
+    public function readyForWaiterSince(int $waiterId, string $since): array;
 
     public function openCount(): int;
 

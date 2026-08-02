@@ -21,6 +21,9 @@ final readonly class Order
         private string $openedAt,
         private ?string $closedAt,
         private array $items,
+        private ?string $kitchenStatus = null,
+        private ?string $sentToKitchenAt = null,
+        private ?string $kitchenReadyAt = null,
     ) {}
 
     public function id(): ?int
@@ -94,5 +97,20 @@ final readonly class Order
     public function isOpen(): bool
     {
         return $this->status === 'open';
+    }
+
+    public function kitchenStatus(): ?string
+    {
+        return $this->kitchenStatus;
+    }
+
+    public function sentToKitchenAt(): ?string
+    {
+        return $this->sentToKitchenAt;
+    }
+
+    public function kitchenReadyAt(): ?string
+    {
+        return $this->kitchenReadyAt;
     }
 }

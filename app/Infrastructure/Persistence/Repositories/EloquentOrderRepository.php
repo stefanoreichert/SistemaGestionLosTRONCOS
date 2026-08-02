@@ -10,6 +10,8 @@ use App\Infrastructure\Persistence\Eloquent\Models\ProductModel;
 use App\Infrastructure\Persistence\Eloquent\Models\TableModel;
 use App\Infrastructure\Persistence\Eloquent\Models\WaiterModel;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 final readonly class EloquentOrderRepository implements OrderRepositoryInterface
@@ -34,11 +36,11 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         return $order instanceof OrderModel ? $this->mapper->toEntity($order) : null;
     }
 
-    public function addProduct(int $tableNumber, int $productId, ?int $authenticatedWaiterId = null): Order
+    public function addProduct(int $tableNumber, int $productId, bool $isAdmin, ?int $waiterId): Order
     {
-        return DB::transaction(function () use ($tableNumber, $productId, $authenticatedWaiterId): Order {
+        return DB::transaction(function () use ($tableNumber, $productId, $isAdmin, $waiterId): Order {
             $order = $this->lockOpenOrderModel($tableNumber);
-            $this->assignActiveWaiterIfMissing($order, $authenticatedWaiterId);
+            $this->authorizeAndAssignForAdd($order, $isAdmin, $waiterId);
             $product = ProductModel::query()
                 ->where('is_active', true)
                 ->findOrFail($productId);
@@ -60,7 +62,13 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
                     'quantity' => 1,
                     'unit_price' => $unitPrice,
                     'subtotal' => $unitPrice,
+                    'requires_kitchen' => (bool) $product->requires_kitchen,
                 ]);
+            }
+
+            if ((bool) $product->requires_kitchen && $order->kitchen_status === null) {
+                $order->kitchen_status = 'PENDING';
+                $order->sent_to_kitchen_at = now();
             }
 
             $this->recalculate($order);
@@ -69,10 +77,11 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         });
     }
 
-    public function removeProductUnit(int $tableNumber, int $productId): Order
+    public function removeProductUnit(int $tableNumber, int $productId, bool $isAdmin, ?int $waiterId): Order
     {
-        return DB::transaction(function () use ($tableNumber, $productId): Order {
-            $order = $this->openOrderModel($tableNumber);
+        return DB::transaction(function () use ($tableNumber, $productId, $isAdmin, $waiterId): Order {
+            $order = $this->lockOpenOrderModel($tableNumber);
+            $this->ensureOwnershipUnchanged($order, $isAdmin, $waiterId);
             $item = $this->findItem($order, $productId);
 
             if ($item->quantity <= 1) {
@@ -89,10 +98,11 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         });
     }
 
-    public function updateProductQuantity(int $tableNumber, int $productId, int $quantity): Order
+    public function updateProductQuantity(int $tableNumber, int $productId, int $quantity, bool $isAdmin, ?int $waiterId): Order
     {
-        return DB::transaction(function () use ($tableNumber, $productId, $quantity): Order {
-            $order = $this->openOrderModel($tableNumber);
+        return DB::transaction(function () use ($tableNumber, $productId, $quantity, $isAdmin, $waiterId): Order {
+            $order = $this->lockOpenOrderModel($tableNumber);
+            $this->ensureOwnershipUnchanged($order, $isAdmin, $waiterId);
             $item = $this->findItem($order, $productId);
 
             $item->quantity = $quantity;
@@ -105,10 +115,11 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         });
     }
 
-    public function removeProduct(int $tableNumber, int $productId): Order
+    public function removeProduct(int $tableNumber, int $productId, bool $isAdmin, ?int $waiterId): Order
     {
-        return DB::transaction(function () use ($tableNumber, $productId): Order {
-            $order = $this->openOrderModel($tableNumber);
+        return DB::transaction(function () use ($tableNumber, $productId, $isAdmin, $waiterId): Order {
+            $order = $this->lockOpenOrderModel($tableNumber);
+            $this->ensureOwnershipUnchanged($order, $isAdmin, $waiterId);
             $this->findItem($order, $productId)->delete();
             $this->recalculate($order);
 
@@ -116,10 +127,11 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         });
     }
 
-    public function closeByTableNumber(int $tableNumber, string $paymentMethod): Order
+    public function closeByTableNumber(int $tableNumber, string $paymentMethod, bool $isAdmin, ?int $waiterId): Order
     {
-        return DB::transaction(function () use ($tableNumber, $paymentMethod): Order {
-            $order = $this->openOrderModel($tableNumber);
+        return DB::transaction(function () use ($tableNumber, $paymentMethod, $isAdmin, $waiterId): Order {
+            $order = $this->lockOpenOrderModel($tableNumber);
+            $this->ensureOwnershipUnchanged($order, $isAdmin, $waiterId);
             $this->recalculate($order);
             $order->status = 'closed';
             $order->payment_method = $paymentMethod;
@@ -128,6 +140,63 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
 
             return $this->freshOrder($order);
         });
+    }
+
+    public function activeKitchenOrders(): array
+    {
+        return OrderModel::query()
+            ->with(['table', 'waiter', 'items' => fn ($query) => $query
+                ->where('requires_kitchen', true)
+                ->with('product')])
+            ->where('status', 'open')
+            ->whereIn('kitchen_status', ['PENDING', 'IN_PREPARATION', 'READY'])
+            ->whereHas('items', fn ($query) => $query->where('requires_kitchen', true))
+            ->orderBy('sent_to_kitchen_at')
+            ->get()
+            ->map(fn (OrderModel $order): Order => $this->mapper->toEntity($order))
+            ->all();
+    }
+
+    public function updateKitchenStatus(int $orderId, string $nextStatus): Order
+    {
+        return DB::transaction(function () use ($orderId, $nextStatus): Order {
+            $order = OrderModel::query()->lockForUpdate()->findOrFail($orderId);
+            $transitions = [
+                'PENDING' => 'IN_PREPARATION',
+                'IN_PREPARATION' => 'READY',
+                'READY' => 'RETIRED',
+            ];
+
+            if ($order->status !== 'open' || ($transitions[$order->kitchen_status] ?? null) !== $nextStatus) {
+                throw new \DomainException('Transición de cocina no permitida.');
+            }
+
+            $order->kitchen_status = $nextStatus;
+            if ($nextStatus === 'IN_PREPARATION') {
+                $order->kitchen_started_at = now();
+            } elseif ($nextStatus === 'READY') {
+                $order->kitchen_ready_at = now();
+            } elseif ($nextStatus === 'RETIRED') {
+                $order->kitchen_retired_at = now();
+            }
+            $order->save();
+
+            return $this->freshOrder($order);
+        });
+    }
+
+    public function readyForWaiterSince(int $waiterId, string $since): array
+    {
+        return OrderModel::query()
+            ->with(['table', 'waiter', 'items.product'])
+            ->where('status', 'open')
+            ->where('waiter_id', $waiterId)
+            ->where('kitchen_status', 'READY')
+            ->where('kitchen_ready_at', '>', Carbon::parse($since))
+            ->orderBy('kitchen_ready_at')
+            ->get()
+            ->map(fn (OrderModel $order): Order => $this->mapper->toEntity($order))
+            ->all();
     }
 
     public function openCount(): int
@@ -260,23 +329,44 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         return OrderModel::query()->lockForUpdate()->findOrFail($order->id);
     }
 
-    private function assignActiveWaiterIfMissing(OrderModel $order, ?int $authenticatedWaiterId): void
+    private function authorizeAndAssignForAdd(OrderModel $order, bool $isAdmin, ?int $waiterId): void
     {
-        if ($order->waiter_id !== null || $authenticatedWaiterId === null) {
+        if ($isAdmin) {
             return;
         }
 
+        if ($order->waiter_id !== null) {
+            $this->ensureOwnershipUnchanged($order, false, $waiterId);
+
+            return;
+        }
+
+        if ($waiterId === null) {
+            throw new AuthorizationException('No tiene permiso para modificar este pedido.');
+        }
+
         $isActiveWaiter = WaiterModel::query()
-            ->whereKey($authenticatedWaiterId)
+            ->whereKey($waiterId)
             ->where('is_active', true)
             ->exists();
 
         if (! $isActiveWaiter) {
+            throw new AuthorizationException('No tiene permiso para modificar este pedido.');
+        }
+
+        $order->waiter_id = $waiterId;
+        $order->save();
+    }
+
+    private function ensureOwnershipUnchanged(OrderModel $order, bool $isAdmin, ?int $waiterId): void
+    {
+        if ($isAdmin) {
             return;
         }
 
-        $order->waiter_id = $authenticatedWaiterId;
-        $order->save();
+        if ($waiterId === null || $order->waiter_id === null || (int) $order->waiter_id !== $waiterId) {
+            throw new AuthorizationException('No tiene permiso para modificar este pedido.');
+        }
     }
 
     private function findItem(OrderModel $order, int $productId): OrderItemModel

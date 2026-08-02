@@ -10,6 +10,7 @@ final class Product
         private int $priceInCents,
         private string $category,
         private bool $isActive = true,
+        private bool $requiresKitchen = true,
     ) {
         $this->rename($name);
         $this->changePrice($priceInCents);
@@ -39,6 +40,16 @@ final class Product
     public function isActive(): bool
     {
         return $this->isActive;
+    }
+
+    public function requiresKitchen(): bool
+    {
+        return $this->requiresKitchen;
+    }
+
+    public function changeKitchenRequirement(bool $requiresKitchen): void
+    {
+        $this->requiresKitchen = $requiresKitchen;
     }
 
     public function activate(): void
@@ -81,5 +92,4 @@ final class Product
 
         $this->category = $category;
     }
-
 }

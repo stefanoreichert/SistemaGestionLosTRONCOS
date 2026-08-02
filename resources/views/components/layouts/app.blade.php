@@ -39,6 +39,11 @@
             <a class="nav-link {{ request()->routeIs('tables.*') ? 'active' : '' }}" href="{{ route('tables.index') }}">
                 <span class="nav-icon">M</span><span class="nav-text">Mesas</span>
             </a>
+            @if (auth()->user()->isAdmin())
+                <a class="nav-link {{ request()->routeIs('kitchen.*') ? 'active' : '' }}" href="{{ route('kitchen.index') }}">
+                    <span class="nav-icon">C</span><span class="nav-text">Cocina</span>
+                </a>
+            @endif
             @unless (auth()->user()->isWaiter())
                 <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}" href="{{ route('tickets.index') }}">
                     <span class="nav-icon">T</span><span class="nav-text">Tickets</span>

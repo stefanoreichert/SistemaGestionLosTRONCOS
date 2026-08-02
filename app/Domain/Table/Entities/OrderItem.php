@@ -12,6 +12,7 @@ final readonly class OrderItem
         private int $quantity,
         private int $unitPriceInCents,
         private int $subtotalInCents,
+        private bool $requiresKitchen = true,
     ) {
         if ($quantity <= 0) {
             throw new \InvalidArgumentException('La cantidad debe ser mayor a cero.');
@@ -51,5 +52,10 @@ final readonly class OrderItem
     public function subtotalInCents(): int
     {
         return $this->subtotalInCents;
+    }
+
+    public function requiresKitchen(): bool
+    {
+        return $this->requiresKitchen;
     }
 }

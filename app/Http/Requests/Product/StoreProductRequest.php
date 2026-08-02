@@ -26,6 +26,7 @@ class StoreProductRequest extends FormRequest
                 'max:50',
                 Rule::in(config('products.categories')),
             ],
+            'requires_kitchen' => ['required', 'boolean'],
         ];
     }
 }

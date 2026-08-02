@@ -31,7 +31,7 @@ class OrderWaiterAssignmentTest extends TestCase
         ]);
     }
 
-    public function test_later_operations_never_replace_the_assigned_waiter(): void
+    public function test_another_waiter_cannot_replace_or_modify_the_assigned_order(): void
     {
         [$firstWaiter, $firstUser, $product] = $this->waiterUserAndProduct();
         [$secondWaiter, $secondUser] = $this->createWaiterUser('Segundo mozo');
@@ -40,12 +40,17 @@ class OrderWaiterAssignmentTest extends TestCase
             ->post(route('tables.products.store', 1), ['product_id' => $product->id]);
         $this->actingAs($secondUser)
             ->post(route('tables.products.store', 1), ['product_id' => $product->id])
-            ->assertRedirect(route('tables.show', 1));
+            ->assertForbidden();
 
         $order = OrderModel::query()->where('table_id', 1)->where('status', 'open')->firstOrFail();
 
         $this->assertSame($firstWaiter->id, $order->waiter_id);
         $this->assertNotSame($secondWaiter->id, $order->waiter_id);
+        $this->assertDatabaseHas('order_items', [
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ]);
     }
 
     public function test_admin_is_not_assigned_and_a_waiter_can_claim_the_unassigned_order_later(): void
@@ -71,7 +76,7 @@ class OrderWaiterAssignmentTest extends TestCase
         $this->actingAs($user)
             ->post(route('tables.products.store', 1), ['product_id' => $product->id]);
 
-        app(EloquentOrderRepository::class)->closeByTableNumber(1, 'cash');
+        app(EloquentOrderRepository::class)->closeByTableNumber(1, 'cash', true, null);
 
         $this->assertDatabaseHas('orders', [
             'table_id' => 1,
@@ -123,10 +128,11 @@ class OrderWaiterAssignmentTest extends TestCase
         $waiter->update(['is_active' => false]);
 
         $this->actingAs($user)
-            ->post(route('tables.products.store', 1), ['product_id' => $product->id]);
+            ->post(route('tables.products.store', 1), ['product_id' => $product->id])
+            ->assertForbidden();
 
-        $this->assertNull($this->openOrder()->waiter_id);
-        $this->assertDatabaseHas('order_items', ['product_id' => $product->id]);
+        $this->assertDatabaseMissing('orders', ['table_id' => 1]);
+        $this->assertDatabaseMissing('order_items', ['product_id' => $product->id]);
     }
 
     public function test_waiter_id_cannot_be_spoofed_from_a_manual_request(): void
@@ -141,7 +147,7 @@ class OrderWaiterAssignmentTest extends TestCase
 
         $this->assertSame($authenticatedWaiter->id, $this->openOrder()->waiter_id);
 
-        app(EloquentOrderRepository::class)->closeByTableNumber(1, 'cash');
+        app(EloquentOrderRepository::class)->closeByTableNumber(1, 'cash', true, null);
         TableModel::query()->where('number', 1)->update(['number' => 2]);
         TableModel::query()->create(['number' => 1]);
 

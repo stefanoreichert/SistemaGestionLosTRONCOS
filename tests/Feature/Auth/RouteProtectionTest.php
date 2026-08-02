@@ -24,7 +24,7 @@ class RouteProtectionTest extends TestCase
     public function test_every_operational_route_has_auth_middleware(): void
     {
         $protectedRouteNames = ['dashboard', 'password.edit', 'password.update', 'logout'];
-        $protectedRoutePrefixes = ['products.', 'waiters.', 'tables.', 'reports.', 'tickets.'];
+        $protectedRoutePrefixes = ['products.', 'waiters.', 'tables.', 'reports.', 'tickets.', 'kitchen.'];
         $auditedRoutes = 0;
 
         foreach (Route::getRoutes() as $route) {
@@ -42,7 +42,7 @@ class RouteProtectionTest extends TestCase
             $auditedRoutes++;
         }
 
-        $this->assertSame(31, $auditedRoutes);
+        $this->assertSame(35, $auditedRoutes);
     }
 
     public function test_authenticated_users_can_access_the_dashboard_and_guests_cannot_access_login(): void

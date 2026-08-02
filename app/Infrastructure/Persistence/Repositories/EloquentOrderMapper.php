@@ -33,8 +33,12 @@ final class EloquentOrderMapper
                     quantity: (int) $item->quantity,
                     unitPriceInCents: (int) round(((float) $item->unit_price) * 100),
                     subtotalInCents: (int) round(((float) $item->subtotal) * 100),
+                    requiresKitchen: (bool) $item->requires_kitchen,
                 ))
                 ->all(),
+            kitchenStatus: $model->kitchen_status !== null ? (string) $model->kitchen_status : null,
+            sentToKitchenAt: $model->sent_to_kitchen_at?->toIso8601String(),
+            kitchenReadyAt: $model->kitchen_ready_at?->toIso8601String(),
         );
     }
 }

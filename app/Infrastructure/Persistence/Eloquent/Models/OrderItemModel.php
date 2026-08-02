@@ -20,6 +20,7 @@ class OrderItemModel extends Model
         'quantity',
         'unit_price',
         'subtotal',
+        'requires_kitchen',
     ];
 
     /**
@@ -31,6 +32,7 @@ class OrderItemModel extends Model
             'quantity' => 'integer',
             'unit_price' => 'decimal:2',
             'subtotal' => 'decimal:2',
+            'requires_kitchen' => 'boolean',
         ];
     }
 

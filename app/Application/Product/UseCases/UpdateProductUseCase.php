@@ -8,9 +8,7 @@ use App\Domain\Product\Repositories\ProductRepositoryInterface;
 
 final readonly class UpdateProductUseCase
 {
-    public function __construct(private ProductRepositoryInterface $products)
-    {
-    }
+    public function __construct(private ProductRepositoryInterface $products) {}
 
     public function execute(int $id, ProductInputDTO $dto): Product
     {
@@ -19,6 +17,7 @@ final readonly class UpdateProductUseCase
         $product->rename($dto->name);
         $product->changePrice($dto->priceInCents);
         $product->changeCategory($dto->category);
+        $product->changeKitchenRequirement($dto->requiresKitchen);
 
         return $this->products->save($product);
     }

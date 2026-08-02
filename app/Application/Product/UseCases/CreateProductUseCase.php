@@ -8,9 +8,7 @@ use App\Domain\Product\Repositories\ProductRepositoryInterface;
 
 final readonly class CreateProductUseCase
 {
-    public function __construct(private ProductRepositoryInterface $products)
-    {
-    }
+    public function __construct(private ProductRepositoryInterface $products) {}
 
     public function execute(ProductInputDTO $dto): Product
     {
@@ -19,6 +17,7 @@ final readonly class CreateProductUseCase
             name: $dto->name,
             priceInCents: $dto->priceInCents,
             category: $dto->category,
+            requiresKitchen: $dto->requiresKitchen,
         ));
     }
 }

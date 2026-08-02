@@ -177,6 +177,8 @@ class ProductSeeder extends Seeder
         ];
 
         foreach ($products as $product) {
+            $requiresKitchen = ! in_array($product['category'], ['Cervezas', 'Sin alcohol', 'Tragos', 'Vinos'], true);
+
             DB::table('products')->updateOrInsert(
                 [
                     'category' => $product['category'],
@@ -184,6 +186,7 @@ class ProductSeeder extends Seeder
                 ],
                 [
                     'price' => $product['price'],
+                    'requires_kitchen' => $requiresKitchen,
                 ],
             );
         }

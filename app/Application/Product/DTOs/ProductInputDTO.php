@@ -8,6 +8,6 @@ final readonly class ProductInputDTO
         public string $name,
         public int $priceInCents,
         public string $category,
-    ) {
-    }
+        public bool $requiresKitchen,
+    ) {}
 }

@@ -1,4 +1,14 @@
 <x-layouts.app title="Mesas">
+    @if (auth()->user()->isWaiter())
+        <div
+            id="waiter-kitchen-notifications"
+            data-url="{{ route('tables.kitchen-notifications') }}"
+            data-since="{{ $kitchenNotificationSince }}"
+            class="mb-4 flex justify-end"
+        >
+            <button class="btn btn-outline btn-sm" type="button" data-enable-kitchen-sound>Activar sonido</button>
+        </div>
+    @endif
     <div class="rounded-box bg-base-200 p-4 sm:p-6" data-theme="emerald">
         <section class="card rounded-box border border-base-300 bg-base-100 shadow">
             <div class="card-body gap-6">

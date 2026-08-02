@@ -68,13 +68,14 @@ final class EloquentProductRepository implements ProductRepositoryInterface
     {
         $model = $product->id() !== null
             ? ProductModel::query()->findOrFail($product->id())
-            : new ProductModel();
+            : new ProductModel;
 
         $model->fill([
             'name' => $product->name(),
             'category' => $product->category(),
             'price' => number_format($product->priceInCents() / 100, 2, '.', ''),
             'is_active' => $product->isActive(),
+            'requires_kitchen' => $product->requiresKitchen(),
         ]);
 
         $model->save();
@@ -91,6 +92,7 @@ final class EloquentProductRepository implements ProductRepositoryInterface
             priceInCents: (int) round(((float) $model->price) * 100),
             category: (string) $model->category,
             isActive: (bool) $model->is_active,
+            requiresKitchen: (bool) $model->requires_kitchen,
         );
     }
 }

@@ -19,12 +19,17 @@ class OrderModel extends Model
         'table_id',
         'waiter_id',
         'status',
+        'kitchen_status',
         'subtotal',
         'total',
         'payment_method',
         'ticket_number',
         'opened_at',
         'closed_at',
+        'sent_to_kitchen_at',
+        'kitchen_started_at',
+        'kitchen_ready_at',
+        'kitchen_retired_at',
     ];
 
     /**
@@ -38,6 +43,10 @@ class OrderModel extends Model
             'opened_at' => 'datetime',
             'closed_at' => 'datetime',
             'waiter_id' => 'integer',
+            'sent_to_kitchen_at' => 'datetime',
+            'kitchen_started_at' => 'datetime',
+            'kitchen_ready_at' => 'datetime',
+            'kitchen_retired_at' => 'datetime',
         ];
     }
 

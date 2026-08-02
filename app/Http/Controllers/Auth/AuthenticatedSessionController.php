@@ -21,6 +21,10 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
+        if ($request->user()->isKitchen()) {
+            return redirect()->route('kitchen.index');
+        }
+
         if ($request->user()->isWaiter()) {
             return redirect()->route('tables.index');
         }

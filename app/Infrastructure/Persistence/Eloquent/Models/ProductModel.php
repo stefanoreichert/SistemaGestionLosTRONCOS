@@ -18,6 +18,7 @@ class ProductModel extends Model
         'category',
         'price',
         'is_active',
+        'requires_kitchen',
     ];
 
     /**
@@ -28,6 +29,7 @@ class ProductModel extends Model
         return [
             'price' => 'decimal:2',
             'is_active' => 'boolean',
+            'requires_kitchen' => 'boolean',
         ];
     }
 }
