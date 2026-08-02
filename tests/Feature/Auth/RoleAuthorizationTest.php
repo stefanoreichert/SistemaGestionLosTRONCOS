@@ -37,7 +37,7 @@ class RoleAuthorizationTest extends TestCase
         foreach ([
             route('dashboard'),
             route('products.index'),
-            route('waiters.index'),
+            route('users.index'),
             route('reports.daily'),
             route('reports.monthly'),
             route('reports.daily-sales'),
@@ -47,7 +47,6 @@ class RoleAuthorizationTest extends TestCase
             $this->get($uri)->assertForbidden();
         }
 
-        $this->get('/users')->assertNotFound();
     }
 
     public function test_admin_keeps_access_to_every_existing_module(): void
@@ -57,7 +56,7 @@ class RoleAuthorizationTest extends TestCase
         foreach ([
             route('dashboard'),
             route('products.index'),
-            route('waiters.index'),
+            route('users.index'),
             route('tables.index'),
             route('reports.daily'),
             route('reports.monthly'),
@@ -76,7 +75,6 @@ class RoleAuthorizationTest extends TestCase
         foreach ([
             route('dashboard'),
             route('products.index'),
-            route('waiters.index'),
             route('tables.index'),
             route('reports.daily'),
             route('reports.monthly'),
@@ -98,7 +96,7 @@ class RoleAuthorizationTest extends TestCase
             ->assertSee(route('logout'), false)
             ->assertDontSee('Panel principal')
             ->assertDontSee(route('products.index'), false)
-            ->assertDontSee(route('waiters.index'), false)
+            ->assertDontSee(route('users.index'), false)
             ->assertDontSee(route('reports.daily'), false)
             ->assertDontSee(route('reports.monthly'), false)
             ->assertDontSee(route('tickets.index'), false);

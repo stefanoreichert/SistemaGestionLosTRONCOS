@@ -33,9 +33,25 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt(
-            $this->only('email', 'password'),
+            [
+                'email' => (string) $this->input('email'),
+                'password' => (string) $this->input('password'),
+                'is_active' => true,
+            ],
             $this->boolean('remember'),
         )) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Las credenciales ingresadas no son válidas.',
+            ]);
+        }
+
+        $user = Auth::user();
+
+        if ($user?->isWaiter()
+            && ($user->waiter_id === null || ! $user->waiter()->where('is_active', true)->exists())) {
+            Auth::logout();
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

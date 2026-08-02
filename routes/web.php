@@ -5,11 +5,11 @@ use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Table\RestaurantTableController;
 use App\Http\Controllers\Ticket\TicketController;
-use App\Http\Controllers\Waiter\WaiterController;
+use App\Http\Controllers\User\UserController;
 use App\Infrastructure\Persistence\Eloquent\Models\User;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware(['auth', 'active'])->group(function (): void {
     Route::middleware('role:'.User::ROLE_ADMIN.','.User::ROLE_CAJA)->group(function (): void {
         Route::get('/', DashboardController::class)->name('dashboard');
 
@@ -17,11 +17,6 @@ Route::middleware('auth')->group(function (): void {
         Route::patch('products/{product}/availability', [ProductController::class, 'availability'])
             ->whereNumber('product')
             ->name('products.availability');
-
-        Route::resource('waiters', WaiterController::class)->except(['show', 'destroy']);
-        Route::patch('waiters/{waiter}/availability', [WaiterController::class, 'availability'])
-            ->whereNumber('waiter')
-            ->name('waiters.availability');
 
         Route::get('reports/daily', [ReportController::class, 'daily'])->name('reports.daily');
         Route::get('reports/monthly', [ReportController::class, 'monthly'])->name('reports.monthly');
@@ -35,6 +30,18 @@ Route::middleware('auth')->group(function (): void {
         Route::post('tickets/{order}/reprint', [TicketController::class, 'reprint'])
             ->whereNumber('order')
             ->name('tickets.reprint');
+    });
+
+    Route::middleware('role:'.User::ROLE_ADMIN)->group(function (): void {
+        Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('users', [UserController::class, 'store'])->name('users.store');
+        Route::get('users/{user}/edit', [UserController::class, 'edit'])->whereNumber('user')->name('users.edit');
+        Route::match(['put', 'patch'], 'users/{user}', [UserController::class, 'update'])->whereNumber('user')->name('users.update');
+        Route::patch('users/{user}/availability', [UserController::class, 'availability'])
+            ->whereNumber('user')->name('users.availability');
+        Route::patch('users/{user}/password', [UserController::class, 'password'])
+            ->whereNumber('user')->name('users.password');
     });
 
     Route::middleware('role:'.User::ROLE_ADMIN.','.User::ROLE_CAJA.','.User::ROLE_MOZO)->group(function (): void {

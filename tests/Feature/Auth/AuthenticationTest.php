@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Infrastructure\Persistence\Eloquent\Models\User;
+use App\Infrastructure\Persistence\Eloquent\Models\WaiterModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -55,6 +56,25 @@ class AuthenticationTest extends TestCase
                 'email' => 'Las credenciales ingresadas no son válidas.',
             ]);
 
+        $this->assertGuest();
+    }
+
+    public function test_inactive_user_cannot_log_in(): void
+    {
+        $user = User::factory()->create(['email' => 'inactivo@example.com', 'is_active' => false]);
+
+        $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+            ->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
+
+    public function test_waiter_with_inactive_operational_profile_cannot_log_in(): void
+    {
+        $waiter = WaiterModel::query()->create(['name' => 'Mozo inactivo', 'is_active' => false]);
+        $user = User::factory()->waiter((int) $waiter->id)->create(['email' => 'mozo-inactivo@example.com']);
+
+        $this->post(route('login.store'), ['email' => $user->email, 'password' => 'password'])
+            ->assertSessionHasErrors('email');
         $this->assertGuest();
     }
 

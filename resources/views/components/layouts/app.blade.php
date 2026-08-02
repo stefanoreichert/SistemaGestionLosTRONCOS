@@ -24,22 +24,26 @@
                 </a>
                 <button class="collapse-btn" type="button" id="collapseSidebar" aria-label="Contraer menu">‹</button>
             </div>
-            @unless (auth()->user()->isWaiter())
+            @if (auth()->user()->isAdmin() || auth()->user()->role === \App\Infrastructure\Persistence\Eloquent\Models\User::ROLE_CAJA)
                 <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
                     <span class="nav-icon">P</span><span class="nav-text">Panel principal</span>
                 </a>
                 <div class="nav-section">Gestion</div>
+                @if (auth()->user()->isAdmin())
+                    <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                        <span class="nav-icon">U</span><span class="nav-text">Usuarios</span>
+                    </a>
+                @endif
                 <a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}" href="{{ route('products.index') }}">
                     <span class="nav-icon">P</span><span class="nav-text">Productos</span>
                 </a>
-                <a class="nav-link {{ request()->routeIs('waiters.*') ? 'active' : '' }}" href="{{ route('waiters.index') }}">
-                    <span class="nav-icon">M</span><span class="nav-text">Mozos</span>
+            @endif
+            @unless (auth()->user()->isKitchen())
+                <a class="nav-link {{ request()->routeIs('tables.*') ? 'active' : '' }}" href="{{ route('tables.index') }}">
+                    <span class="nav-icon">M</span><span class="nav-text">Mesas</span>
                 </a>
             @endunless
-            <a class="nav-link {{ request()->routeIs('tables.*') ? 'active' : '' }}" href="{{ route('tables.index') }}">
-                <span class="nav-icon">M</span><span class="nav-text">Mesas</span>
-            </a>
-            @unless (auth()->user()->isWaiter())
+            @if (auth()->user()->isAdmin() || auth()->user()->role === \App\Infrastructure\Persistence\Eloquent\Models\User::ROLE_CAJA)
                 <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}" href="{{ route('tickets.index') }}">
                     <span class="nav-icon">T</span><span class="nav-text">Tickets</span>
                 </a>
@@ -49,7 +53,7 @@
                 <a class="nav-link {{ request()->routeIs('reports.monthly') ? 'active' : '' }}" href="{{ route('reports.monthly') }}">
                     <span class="nav-icon">R</span><span class="nav-text">Resumen Mensual</span>
                 </a>
-            @endunless
+            @endif
         </aside>
 
         <main class="main">
