@@ -18,34 +18,42 @@
     <div class="app">
         <aside class="sidebar" id="sidebar">
             <div class="brand">
-                <a class="brand-name" href="{{ route('dashboard') }}" aria-label="Los Troncos Resto Bar">
+                <a class="brand-name" href="{{ auth()->user()->isWaiter() ? route('tables.index') : route('dashboard') }}" aria-label="Los Troncos Resto Bar">
                     <span class="brand-name-main">Los Troncos</span>
                     <span class="brand-name-subtitle">Resto Bar</span>
                 </a>
                 <button class="collapse-btn" type="button" id="collapseSidebar" aria-label="Contraer menu">‹</button>
             </div>
-            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
-                <span class="nav-icon">P</span><span class="nav-text">Panel principal</span>
-            </a>
-            <div class="nav-section">Gestion</div>
-            <a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}" href="{{ route('products.index') }}">
-                <span class="nav-icon">P</span><span class="nav-text">Productos</span>
-            </a>
-            <a class="nav-link {{ request()->routeIs('waiters.*') ? 'active' : '' }}" href="{{ route('waiters.index') }}">
-                <span class="nav-icon">M</span><span class="nav-text">Mozos</span>
-            </a>
-            <a class="nav-link {{ request()->routeIs('tables.*') ? 'active' : '' }}" href="{{ route('tables.index') }}">
-                <span class="nav-icon">M</span><span class="nav-text">Mesas</span>
-            </a>
-            <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}" href="{{ route('tickets.index') }}">
-                <span class="nav-icon">T</span><span class="nav-text">Tickets</span>
-            </a>
-            <a class="nav-link {{ request()->routeIs('reports.daily') ? 'active' : '' }}" href="{{ route('reports.daily') }}">
-                <span class="nav-icon">D</span><span class="nav-text">Resumen Diario</span>
-            </a>
-            <a class="nav-link {{ request()->routeIs('reports.monthly') ? 'active' : '' }}" href="{{ route('reports.monthly') }}">
-                <span class="nav-icon">R</span><span class="nav-text">Resumen Mensual</span>
-            </a>
+            @if (auth()->user()->isAdmin() || auth()->user()->role === \App\Infrastructure\Persistence\Eloquent\Models\User::ROLE_CAJA)
+                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                    <span class="nav-icon">P</span><span class="nav-text">Panel principal</span>
+                </a>
+                <div class="nav-section">Gestion</div>
+                @if (auth()->user()->isAdmin())
+                    <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                        <span class="nav-icon">U</span><span class="nav-text">Usuarios</span>
+                    </a>
+                @endif
+                <a class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}" href="{{ route('products.index') }}">
+                    <span class="nav-icon">P</span><span class="nav-text">Productos</span>
+                </a>
+            @endif
+            @unless (auth()->user()->isKitchen())
+                <a class="nav-link {{ request()->routeIs('tables.*') ? 'active' : '' }}" href="{{ route('tables.index') }}">
+                    <span class="nav-icon">M</span><span class="nav-text">Mesas</span>
+                </a>
+            @endunless
+            @if (auth()->user()->isAdmin() || auth()->user()->role === \App\Infrastructure\Persistence\Eloquent\Models\User::ROLE_CAJA)
+                <a class="nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}" href="{{ route('tickets.index') }}">
+                    <span class="nav-icon">T</span><span class="nav-text">Tickets</span>
+                </a>
+                <a class="nav-link {{ request()->routeIs('reports.daily') ? 'active' : '' }}" href="{{ route('reports.daily') }}">
+                    <span class="nav-icon">D</span><span class="nav-text">Resumen Diario</span>
+                </a>
+                <a class="nav-link {{ request()->routeIs('reports.monthly') ? 'active' : '' }}" href="{{ route('reports.monthly') }}">
+                    <span class="nav-icon">R</span><span class="nav-text">Resumen Mensual</span>
+                </a>
+            @endif
         </aside>
 
         <main class="main">

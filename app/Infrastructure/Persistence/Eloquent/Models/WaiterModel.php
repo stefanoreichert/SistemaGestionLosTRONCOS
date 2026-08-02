@@ -4,6 +4,7 @@ namespace App\Infrastructure\Persistence\Eloquent\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class WaiterModel extends Model
 {
@@ -37,5 +38,10 @@ class WaiterModel extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class, 'waiter_id');
+    }
+
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'waiter_id');
     }
 }

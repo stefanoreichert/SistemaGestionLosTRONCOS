@@ -2,6 +2,7 @@
 
 namespace App\Infrastructure\Persistence\Eloquent\Models;
 
+use App\Domain\User\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,9 +11,15 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    public const ROLE_ADMIN = 'admin';
+    public const ROLE_ADMIN = 'ADMIN';
 
-    public const ROLE_WAITER = 'waiter';
+    public const ROLE_MOZO = 'MOZO';
+
+    public const ROLE_CAJA = 'CAJA';
+
+    public const ROLE_KITCHEN = 'COCINA';
+
+    public const ROLE_WAITER = self::ROLE_MOZO;
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -24,6 +31,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'phone',
         'email',
         'password',
         'role',
@@ -64,11 +72,28 @@ class User extends Authenticatable
 
     public function isWaiter(): bool
     {
-        return $this->role === self::ROLE_WAITER;
+        return $this->role === self::ROLE_MOZO;
     }
 
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
     }
+
+    public function isKitchen(): bool
+    {
+        return $this->role === self::ROLE_KITCHEN;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active === true;
+    }
+
+    /** @return list<string> */
+    public static function roles(): array
+    {
+        return array_map(static fn (UserRole $role): string => $role->value, UserRole::cases());
+    }
+
 }
