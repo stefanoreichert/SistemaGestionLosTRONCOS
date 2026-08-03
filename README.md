@@ -1,59 +1,150 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema Gestión Los Troncos
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Descripción
 
-## About Laravel
+Sistema web de gestión para el restaurante Los Troncos. Su objetivo es centralizar y facilitar las operaciones diarias del negocio, incluyendo la administración de mesas, pedidos, productos, usuarios, mozos, cocina y reportes, con una estructura mantenible y preparada para crecer.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Características
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Gestión de mesas.
+- Gestión de pedidos.
+- Gestión de productos.
+- Gestión de usuarios.
+- Gestión de mozos.
+- Panel de cocina.
+- Reportes.
+- Autenticación.
+- Control de acceso mediante los roles `ADMIN`, `CAJA`, `MOZO` y `COCINA`.
+- Control de disponibilidad de productos.
+- Asignación de mozos.
+- Arquitectura Hexagonal.
+- Aplicación de principios SOLID.
+- Interfaz construida con DaisyUI y Tailwind CSS.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tecnologías utilizadas
 
-## Learning Laravel
+- Laravel 12.
+- PHP 8.4.
+- MySQL.
+- Blade.
+- DaisyUI.
+- Tailwind CSS.
+- Vite.
+- JavaScript.
+- Composer.
+- Railway.
+- Git.
+- GitHub.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Arquitectura
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+El proyecto sigue una Arquitectura Hexagonal para mantener separadas la lógica de negocio, los casos de uso y los detalles de infraestructura. Esta organización reduce el acoplamiento y facilita el mantenimiento, las pruebas y la evolución del sistema.
 
-## Laravel Sponsors
+Los principios SOLID se aplican con criterio para promover responsabilidades claras, dependencias controladas y componentes fáciles de extender, evitando abstracciones innecesarias.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Instalación
 
-### Premium Partners
+1. Instalar las dependencias de PHP:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+   ```bash
+   composer install
+   ```
 
-## Contributing
+2. Instalar las dependencias de JavaScript:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   ```bash
+   npm install
+   ```
 
-## Code of Conduct
+3. Crear el archivo de configuración del entorno:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   ```bash
+   cp .env.example .env
+   ```
 
-## Security Vulnerabilities
+4. Generar la clave de la aplicación:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   ```bash
+   php artisan key:generate
+   ```
 
-## License
+5. Configurar la conexión a MySQL en el archivo `.env` y ejecutar las migraciones:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+   ```bash
+   php artisan migrate
+   ```
+
+6. Verificar o actualizar las dependencias del frontend:
+
+   ```bash
+   npm install
+   ```
+
+7. Generar los recursos optimizados para producción:
+
+   ```bash
+   npm run build
+   ```
+
+8. Iniciar el servidor local:
+
+   ```bash
+   php artisan serve
+   ```
+
+## Variables importantes
+
+La configuración principal se encuentra en el archivo `.env`:
+
+- `APP_KEY`: clave utilizada por Laravel para cifrar datos sensibles. Se genera mediante `php artisan key:generate`.
+- `APP_ENV`: define el entorno de ejecución, por ejemplo `local` o `production`.
+- Base de datos: las variables `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` y `DB_PASSWORD` deben contener los datos de conexión a MySQL correspondientes al entorno.
+
+No se debe publicar ni versionar el archivo `.env` con credenciales reales.
+
+## Usuarios
+
+Para crear el primer usuario administrador, ejecutar el comando interactivo:
+
+```bash
+php artisan user:create
+```
+
+El comando solicitará los datos necesarios y creará el usuario con rol `ADMIN`.
+
+## Pruebas
+
+Para ejecutar la suite de pruebas automatizadas:
+
+```bash
+php artisan test
+```
+
+## Build
+
+Para compilar y optimizar los recursos del frontend:
+
+```bash
+npm run build
+```
+
+## Estructura del proyecto
+
+- `app/`: lógica de aplicación, dominio, infraestructura, controladores y modelos.
+- `resources/`: vistas Blade, estilos CSS y código JavaScript del frontend.
+- `routes/`: definición de las rutas de la aplicación.
+- `database/`: migraciones, factories y seeders de la base de datos.
+- `tests/`: pruebas automatizadas unitarias y funcionales.
+- `public/`: punto de entrada público y recursos compilados accesibles por el servidor web.
+
+## Estado del proyecto
+
+El sistema continúa en desarrollo. Las nuevas funcionalidades y mejoras se incorporan mediante ramas Git independientes para mantener los cambios aislados y facilitar su revisión.
+
+## Autor
+
+Stefano Reichert
+
+## Licencia
+
+Este proyecto utiliza la licencia MIT. Consulte el archivo `LICENSE` para conocer sus términos.
