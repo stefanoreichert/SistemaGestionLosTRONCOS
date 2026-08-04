@@ -42,11 +42,15 @@
     <label class="fieldset-label" for="role">Rol</label>
     <select class="select select-bordered w-full" id="role" name="role" required>
         @foreach ($roles as $role)
-            <option value="{{ $role->value }}" @selected(old('role', $isEdit ? $account->role : '') === $role->value)>
+            <option 
+                value="{{ $role->value }}" 
+                @if(old('role', $isEdit ? $account->role : '') === $role->value) selected @endif
+                @if($role->value === 'COCINA' && old('role', $isEdit ? $account->role : '') !== 'COCINA') disabled @endif>
                 {{ $role->label() }} ({{ $role->value }})
             </option>
         @endforeach
     </select>
+    <p class="text-sm text-base-content/60 pt-2">Rol disponible próximamente.</p>
 </fieldset>
 
 <div class="flex flex-wrap gap-3 pt-2">

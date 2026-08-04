@@ -27,4 +27,12 @@ final class StoreUserRequest extends FormRequest
             'role' => ['required', Rule::enum(UserRole::class)],
         ];
     }
+
+    /** @return array<string, string> */
+    public function messages(): array
+    {
+        return [
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ];
+    }
 }

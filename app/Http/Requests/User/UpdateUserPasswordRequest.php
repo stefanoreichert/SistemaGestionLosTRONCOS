@@ -21,4 +21,12 @@ final class UpdateUserPasswordRequest extends FormRequest
     {
         return ['password' => ['required', 'confirmed', Password::defaults()]];
     }
+
+    /** @return array<string, string> */
+    public function messages(): array
+    {
+        return [
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ];
+    }
 }
