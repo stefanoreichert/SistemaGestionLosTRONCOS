@@ -23,6 +23,7 @@ class OrderModel extends Model
         'total',
         'payment_method',
         'ticket_number',
+        'daily_report_closure_id',
         'opened_at',
         'closed_at',
     ];
@@ -38,6 +39,7 @@ class OrderModel extends Model
             'opened_at' => 'datetime',
             'closed_at' => 'datetime',
             'waiter_id' => 'integer',
+            'daily_report_closure_id' => 'integer',
         ];
     }
 

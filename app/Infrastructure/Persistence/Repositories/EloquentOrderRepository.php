@@ -186,24 +186,47 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
             ->all();
     }
 
-    public function dailyReport(string $date): array
+    public function dailyReport(string $date, bool $onlyOpenPeriod = false): array
     {
-        $orders = $this->closedOrdersForDate($date);
+        return $this->buildDailyReport(
+            $date,
+            $this->closedOrdersForDate($date, $onlyOpenPeriod),
+        );
+    }
+
+    public function dailyReportForOrderIds(string $date, array $orderIds): array
+    {
+        $orders = OrderModel::query()
+            ->with(['table', 'waiter', 'items.product'])
+            ->whereIn('id', $orderIds)
+            ->where('status', 'closed')
+            ->orderBy('closed_at')
+            ->get();
+
+        return $this->buildDailyReport($date, $orders);
+    }
+
+    private function buildDailyReport(string $date, $orders): array
+    {
         $total = (int) round((float) $orders->sum('total') * 100);
         $orderIds = $orders->pluck('id')->all();
+        $usedTablesCount = $orders->pluck('table_id')->unique()->count();
 
         return [
             'date' => $date,
             'totalSoldInCents' => $total,
             'ordersCount' => $orders->count(),
-            'usedTablesCount' => $orders->pluck('table_id')->unique()->count(),
+            'usedTablesCount' => $usedTablesCount,
+            'soldProductsCount' => $this->soldProductsCount($orderIds),
             'topProduct' => $this->topProduct($orderIds),
             'topCategory' => $this->topCategory($orderIds),
-            'averagePerTableInCents' => $this->average($total, $orders->pluck('table_id')->unique()->count()),
+            'averagePerTableInCents' => $this->average($total, $usedTablesCount),
             'averagePerTicketInCents' => $this->average($total, $orders->count()),
-            'salesByHour' => $this->salesByHour($date),
+            'salesByHour' => $this->salesByHour($orderIds),
             'orders' => $orders->map(fn (OrderModel $order): Order => $this->mapper->toEntity($order))->all(),
-            'cashTotalInCents' => $total,
+            'cashTotalInCents' => $this->paymentMethodTotal($orders, 'cash'),
+            'transferTotalInCents' => $this->paymentMethodTotal($orders, 'transfer'),
+            'cardTotalInCents' => $this->paymentMethodTotal($orders, 'card'),
             'grandTotalInCents' => $total,
         ];
     }
@@ -321,7 +344,7 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         $order->save();
     }
 
-    private function closedOrdersForDate(string $date)
+    private function closedOrdersForDate(string $date, bool $onlyOpenPeriod = false)
     {
         [$start, $end] = $this->dayRange($date);
 
@@ -329,6 +352,8 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
             ->with(['table', 'waiter', 'items.product'])
             ->where('status', 'closed')
             ->whereBetween('closed_at', [$start, $end])
+            ->when($onlyOpenPeriod, fn ($query) => $query->whereNull('daily_report_closure_id'))
+            ->orderBy('closed_at')
             ->get();
     }
 
@@ -368,14 +393,12 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
         return $row?->category;
     }
 
-    private function salesByHour(string $date): array
+    private function salesByHour(array $orderIds): array
     {
-        [$start, $end] = $this->dayRange($date);
-
         return OrderModel::query()
             ->select(DB::raw('HOUR(closed_at) as hour'), DB::raw('SUM(total) as total'))
             ->where('status', 'closed')
-            ->whereBetween('closed_at', [$start, $end])
+            ->whereIn('id', $orderIds)
             ->groupBy('hour')
             ->orderBy('hour')
             ->get()
@@ -384,6 +407,13 @@ final readonly class EloquentOrderRepository implements OrderRepositoryInterface
                 'totalInCents' => (int) round(((float) $row->total) * 100),
             ])
             ->all();
+    }
+
+    private function paymentMethodTotal($orders, string $paymentMethod): int
+    {
+        return (int) round((float) $orders
+            ->where('payment_method', $paymentMethod)
+            ->sum('total') * 100);
     }
 
     private function salesByDay(int $month, int $year): array

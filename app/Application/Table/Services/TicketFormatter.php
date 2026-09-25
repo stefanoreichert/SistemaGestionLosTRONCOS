@@ -16,20 +16,13 @@ final readonly class TicketFormatter
         $lines = [];
 
         $lines[] = $this->center($this->restaurant('name'), $width);
-        $lines[] = $this->center($this->restaurant('address'), $width);
-        $lines[] = $this->center($this->restaurant('city'), $width);
-        $lines[] = $this->center('Tel: '.$this->restaurant('phone'), $width);
-        $lines[] = $this->center('Instagram:', $width);
-        $lines[] = $this->center($this->restaurant('instagram'), $width);
-        $lines[] = $this->separator($width);
-        $lines[] = $this->center('Comprobante No Valido', $width);
-        $lines[] = $this->center('como Factura', $width);
+        $lines[] = $this->centerUnicode('Ticket N.º '.$this->ticketNumber($order), $width);
+        $lines[] = $this->centerUnicode('NO VÁLIDO COMO FACTURA', $width);
         $lines[] = $this->separator($width);
 
         $closedAt = $order->closedAt() ?? $order->openedAt();
         $lines[] = 'Fecha: '.substr($closedAt, 0, 10);
         $lines[] = 'Hora:  '.substr($closedAt, 11, 8);
-        $lines[] = 'Ticket: '.$this->ticketNumber($order);
         $lines[] = 'Mesa: '.$order->tableNumber();
         $lines[] = $this->separator($width);
         $lines[] = $this->columns('Cant x Producto', 'Total', $width);
@@ -88,6 +81,14 @@ final readonly class TicketFormatter
     {
         $text = $this->clip($this->ascii($text), $width);
         $padding = max(0, $width - strlen($text));
+
+        return str_repeat(' ', intdiv($padding, 2)).$text;
+    }
+
+    private function centerUnicode(string $text, int $width): string
+    {
+        $text = mb_strimwidth($text, 0, $width, '');
+        $padding = max(0, $width - mb_strwidth($text));
 
         return str_repeat(' ', intdiv($padding, 2)).$text;
     }

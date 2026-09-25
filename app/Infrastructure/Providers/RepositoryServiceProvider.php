@@ -4,6 +4,7 @@ namespace App\Infrastructure\Providers;
 
 use App\Domain\Product\Repositories\ProductRepositoryInterface;
 use App\Domain\Reports\Repositories\DailySalesReportRepositoryInterface;
+use App\Domain\Reports\Repositories\DailyReportClosureRepositoryInterface;
 use App\Domain\Reports\Repositories\SoldProductReportRepositoryInterface;
 use App\Domain\Table\Repositories\OrderRepositoryInterface;
 use App\Domain\Table\Repositories\RestaurantTableRepositoryInterface;
@@ -11,6 +12,7 @@ use App\Application\Table\Ports\TicketPrinterInterface;
 use App\Domain\Tickets\Repositories\TicketRepositoryInterface;
 use App\Domain\Waiter\Repositories\WaiterRepositoryInterface;
 use App\Infrastructure\Persistence\Repositories\EloquentDailySalesReportRepository;
+use App\Infrastructure\Persistence\Repositories\EloquentDailyReportClosureRepository;
 use App\Infrastructure\Persistence\Repositories\EloquentOrderRepository;
 use App\Infrastructure\Persistence\Repositories\EloquentProductRepository;
 use App\Infrastructure\Persistence\Repositories\EloquentRestaurantTableRepository;
@@ -28,6 +30,7 @@ class RepositoryServiceProvider extends ServiceProvider
     public array $bindings = [
         ProductRepositoryInterface::class => EloquentProductRepository::class,
         DailySalesReportRepositoryInterface::class => EloquentDailySalesReportRepository::class,
+        DailyReportClosureRepositoryInterface::class => EloquentDailyReportClosureRepository::class,
         SoldProductReportRepositoryInterface::class => EloquentSoldProductReportRepository::class,
         RestaurantTableRepositoryInterface::class => EloquentRestaurantTableRepository::class,
         OrderRepositoryInterface::class => EloquentOrderRepository::class,

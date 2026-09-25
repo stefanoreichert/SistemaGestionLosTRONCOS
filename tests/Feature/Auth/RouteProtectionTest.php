@@ -42,7 +42,7 @@ class RouteProtectionTest extends TestCase
             $auditedRoutes++;
         }
 
-        $this->assertSame(32, $auditedRoutes);
+        $this->assertSame(34, $auditedRoutes);
     }
 
     public function test_authenticated_users_can_access_the_dashboard_and_guests_cannot_access_login(): void

@@ -42,8 +42,8 @@
     <label class="fieldset-label" for="role">Rol</label>
     <select class="select select-bordered w-full" id="role" name="role" required>
         @foreach ($roles as $role)
-            <option 
-                value="{{ $role->value }}" 
+            <option
+                value="{{ $role->value }}"
                 @if(old('role', $isEdit ? $account->role : '') === $role->value) selected @endif
                 @if($role->value === 'COCINA' && old('role', $isEdit ? $account->role : '') !== 'COCINA') disabled @endif>
                 {{ $role->label() }} ({{ $role->value }})

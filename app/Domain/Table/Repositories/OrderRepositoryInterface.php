@@ -36,7 +36,13 @@ interface OrderRepositoryInterface
     /**
      * @return array<string, mixed>
      */
-    public function dailyReport(string $date): array;
+    public function dailyReport(string $date, bool $onlyOpenPeriod = false): array;
+
+    /**
+     * @param  list<int>  $orderIds
+     * @return array<string, mixed>
+     */
+    public function dailyReportForOrderIds(string $date, array $orderIds): array;
 
     /**
      * @return array<string, mixed>

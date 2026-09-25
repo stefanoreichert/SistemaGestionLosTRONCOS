@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Report\ReportController;
+use App\Http\Controllers\Report\DailyReportClosureController;
 use App\Http\Controllers\Table\RestaurantTableController;
 use App\Http\Controllers\Ticket\TicketController;
 use App\Http\Controllers\User\UserController;
@@ -25,6 +26,11 @@ Route::middleware(['auth', 'active'])->group(function (): void {
             ->name('waiters.availability');
 
         Route::get('reports/daily', [ReportController::class, 'daily'])->name('reports.daily');
+        Route::post('reports/daily/close', [DailyReportClosureController::class, 'store'])
+            ->name('reports.daily-closures.store');
+        Route::get('reports/daily/closures/{closure}', [DailyReportClosureController::class, 'show'])
+            ->whereNumber('closure')
+            ->name('reports.daily-closures.show');
         Route::get('reports/monthly', [ReportController::class, 'monthly'])->name('reports.monthly');
         Route::get('reports/daily-sales', [ReportController::class, 'dailySales'])->name('reports.daily-sales');
         Route::get('reports/sold-products', [ReportController::class, 'soldProducts'])->name('reports.sold-products');

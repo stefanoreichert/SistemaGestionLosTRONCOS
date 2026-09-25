@@ -93,6 +93,15 @@ input:not(.toggle), select { width: 100%; border: 1px solid #d0d5dd; border-radi
 .search-suggestion small { display: block; color: var(--muted); margin-top: 3px; }
 .search-suggestion-price { color: var(--text); font-weight: 700; white-space: nowrap; }
 .mobile-toggle { display: none; }
+.daily-report-controls { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.daily-report-controls > form:first-child { flex: 1; }
+.daily-closure-print-page { background: #fff; }
+.daily-closure-print { width: min(100%, 1100px); margin: 0 auto; padding: 28px; }
+.daily-closure-print-header { margin-bottom: 24px; text-align: center; }
+.daily-closure-print-header h1 { margin: 0; font-family: Georgia, 'Times New Roman', serif; }
+.daily-closure-print-header h2 { margin: 8px 0 16px; }
+.daily-closure-print-header p { margin: 4px 0; }
+.daily-closure-print-actions { display: flex; justify-content: center; gap: 10px; margin-top: 24px; }
 
 @media (max-width: 980px) {
     .app { display: block; }
@@ -100,7 +109,21 @@ input:not(.toggle), select { width: 100%; border: 1px solid #d0d5dd; border-radi
     .sidebar.open { transform: translateX(0); }
     .mobile-toggle { display: inline-flex; }
     .metrics, .two-columns, .tables-overview, .table-workspace, .form-grid, .product-search { grid-template-columns: 1fr; }
+    .daily-report-controls { display: block; }
     .table-grid { grid-template-columns: repeat(5, minmax(42px, 1fr)); }
     .topbar { padding: 0 18px; }
     .content { padding: 18px; }
+}
+
+@media print {
+    @page { margin: 12mm; }
+    body { background: #fff; color: #000; }
+    .daily-closure-print { width: 100%; margin: 0; padding: 0; }
+    .daily-closure-print-actions { display: none !important; }
+    .daily-report-summary .grid { display: grid; }
+    .daily-report-summary .metrics { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .daily-report-summary .two-columns { grid-template-columns: 1fr 1fr; }
+    .daily-report-summary .card { break-inside: avoid; box-shadow: none; }
+    .daily-report-summary table { break-inside: auto; }
+    .daily-report-summary tr { break-inside: avoid; }
 }

@@ -13,6 +13,7 @@ use App\Http\Requests\Report\DailyReportRequest;
 use App\Http\Requests\Report\MonthlyReportRequest;
 use App\Http\Requests\Report\SoldProductsReportRequest;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class ReportController extends Controller
 {
@@ -22,6 +23,7 @@ class ReportController extends Controller
 
         return view('reports.daily', [
             'report' => $useCase->execute($date),
+            'closureToken' => (string) Str::uuid(),
         ]);
     }
 
